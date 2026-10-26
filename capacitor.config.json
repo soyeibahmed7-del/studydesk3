@@ -1,0 +1,11 @@
+{
+  "appId": "com.studydesk.app",
+  "appName": "Study Desk",
+  "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "backgroundColor": "#186054"
+    }
+  }
+}

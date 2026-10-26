@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta name="app" content="studydesk"><meta name="app-version" content="1.7"><meta charset="utf-8"><meta name="theme-color" content="#EDF3F0"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Study Desk</title>
+<link rel="stylesheet" href="fonts/hind-siliguri/400.css"><link rel="stylesheet" href="fonts/hind-siliguri/500.css"><link rel="stylesheet" href="fonts/hind-siliguri/600.css"><link rel="stylesheet" href="fonts/hind-siliguri/700.css"><link rel="stylesheet" href="fonts/ibm-plex-mono/400.css"><link rel="stylesheet" href="fonts/ibm-plex-mono/500.css"><link rel="stylesheet" href="fonts/ibm-plex-mono/600.css"><link rel="stylesheet" href="fonts/schibsted-grotesk/400.css"><link rel="stylesheet" href="fonts/schibsted-grotesk/500.css"><link rel="stylesheet" href="fonts/schibsted-grotesk/600.css"><link rel="stylesheet" href="fonts/schibsted-grotesk/700.css">
+<style>
+/* Layout concept: an engineering-pad desk. Graph-paper ground, flat ruled panels,
+   a highlighter-yellow marker for whatever is active, mono type for every number. */
+:root {
+  --bg: #EDF3F0;
+  --grid: rgba(24, 96, 84, 0.10);
+  --surface: #FAFDFB;
+  --surface2: #E3ECE8;
+  --ink: #11202A;
+  --ink2: #47606C;
+  --line: #C5D4CE;
+  --accent: #2457D6;
+  --accent-ink: #FFFFFF;
+  --hl: #F4D84A;
+  --hl-ink: #11202A;
+  --ok: #1D8A58;
+  --ok-ink: #FFFFFF;
+  --bad: #C23B2E;
+  --s1: #2457D6; --s2: #0A8F7F; --s3: #C8581A; --s4: #6C8A1E; --s5: #7B4FC4; --s6: #C2306B; --s7: #5B6B78;
+  --f-body: "Schibsted Grotesk", "Hind Siliguri", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E161D; --grid: rgba(120, 200, 185, 0.07); --surface: #15202A; --surface2: #1E2C37;
+    --ink: #E6EFEA; --ink2: #9DB2BC; --line: #2B3C48; --accent: #7FA3FF; --accent-ink: #0B1218;
+    --hl: #E2C63C; --hl-ink: #11202A; --ok: #4CC48B; --ok-ink: #08130E; --bad: #F07A6E;
+    --s1: #6F96FF; --s2: #3CC9B5; --s3: #FF9A5C; --s4: #A5C94A; --s5: #A98BF0; --s6: #F06FA0; --s7: #93A4B2;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E161D; --grid: rgba(120, 200, 185, 0.07); --surface: #15202A; --surface2: #1E2C37;
+  --ink: #E6EFEA; --ink2: #9DB2BC; --line: #2B3C48; --accent: #7FA3FF; --accent-ink: #0B1218;
+  --hl: #E2C63C; --hl-ink: #11202A; --ok: #4CC48B; --ok-ink: #08130E; --bad: #F07A6E;
+  --s1: #6F96FF; --s2: #3CC9B5; --s3: #FF9A5C; --s4: #A5C94A; --s5: #A98BF0; --s6: #F06FA0; --s7: #93A4B2;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.5;
+}
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { text-wrap: balance; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 24px; margin-bottom: 20px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.mark { width: 26px; height: 26px; border-left: 3px solid var(--ink); border-bottom: 3px solid var(--ink); position: relative; flex: none; }
+.mark::after { content: ""; position: absolute; left: 4px; bottom: 4px; width: 20px; height: 12px; background: var(--hl); transform: skewY(-24deg); transform-origin: left bottom; }
+.brand h1 { font-size: 26px; font-weight: 700; letter-spacing:0; }
+.meta { font: 400 12px var(--f-mono); color: var(--ink2); text-align: right; }
+.meta b { color: var(--ink); font-weight: 600; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; border-bottom: 1px solid var(--line); }
+.tab { border: 0; background: none; color: var(--ink2); font-weight: 600; font-size: 14px; padding: 9px 14px; border-radius: 6px 6px 0 0; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { background: var(--hl); color: var(--hl-ink); }
+.count { font: 600 11px var(--f-mono); background: var(--ink); color: var(--bg); border-radius: 999px; padding: 1px 7px; }
+.tab[aria-selected="true"] .count { background: var(--hl-ink); color: var(--hl); }
+
+.two { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+@media (max-width: 820px) { .two { grid-template-columns: minmax(0, 1fr); } }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; min-width: 0; }
+.label { font: 500 11px var(--f-mono); text-transform: uppercase; letter-spacing:0; color: var(--ink2); margin-bottom: 12px; display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+h2 { font-size: 18px; font-weight: 700; letter-spacing:0; }
+.muted { color: var(--ink2); }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.small { font-size: 13px; }
+
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.btn:hover { border-color: var(--ink2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.ghost { border-color: transparent; background: none; color: var(--ink2); }
+.btn.ghost:hover { color: var(--ink); background: var(--surface2); }
+.btn.sm { padding: 3px 9px; font-size: 13px; }
+.btn.danger { color: var(--bad); border-color: var(--bad); }
+.btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+input[type="text"], input[type="number"], input[type="date"], select, textarea {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; min-width: 0; width: 100%;
+}
+textarea { resize: vertical; min-height: 64px; }
+input[type="number"] { font-family: var(--f-mono); }
+input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+form.inline { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
+form.inline > input[type="text"] { flex: 1 1 160px; }
+form.inline > select { flex: 0 1 150px; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field > span { font: 500 11px var(--f-mono); text-transform: uppercase; letter-spacing:0; color: var(--ink2); }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; align-items: end; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 11px; font-size: 13px; font-weight: 500; cursor: pointer; }
+.chip:hover { border-color: var(--ink2); }
+.chip[aria-pressed="true"] { background: var(--surface2); border-color: var(--ink); font-weight: 600; }
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; display: inline-block; }
+
+.timer-body { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
+.ring { position: relative; width: 200px; height: 200px; flex: none; max-width: 100%; }
+.ring svg { width: 100%; height: 100%; display: block; }
+.ring .track { stroke: var(--surface2); }
+.ring .prog { stroke: var(--accent); transition: stroke-dashoffset 0.25s linear; }
+.ring.brk .prog { stroke: var(--ok); }
+.ring .face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.ring .time { font: 500 44px var(--f-mono); letter-spacing:0; font-variant-numeric: tabular-nums; }
+.ring .state { font: 500 11px var(--f-mono); letter-spacing:0; text-transform: uppercase; color: var(--ink2); }
+.timer-side { display: flex; flex-direction: column; gap: 14px; flex: 1 1 200px; min-width: 0; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--ink2); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.custom { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line); }
+
+.bar { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); }
+.bar.ok > i { background: var(--ok); }
+.big { font: 500 34px var(--f-mono); letter-spacing:0; font-variant-numeric: tabular-nums; line-height: 1.1; }
+
+.list { list-style: none; margin: 0; padding: 0; }
+.list > li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); min-width: 0; }
+.list > li:first-child { border-top: 0; }
+.list .grow { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.done .grow { text-decoration: line-through; color: var(--ink2); }
+.tag { font: 500 11px var(--f-mono); color: var(--ink2); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; white-space: nowrap; }
+.ex { font: 500 10px var(--f-mono); letter-spacing:0; text-transform: uppercase; color: var(--ink2); border: 1px dashed var(--ink2); border-radius: 4px; padding: 0 5px; }
+.empty { color: var(--ink2); font-size: 14px; padding: 6px 0; }
+
+.st { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 10px; font: 500 12px var(--f-mono); cursor: pointer; min-width: 98px; text-align: center; color: var(--ink2); }
+.st[data-s="1"] { background: var(--hl); color: var(--hl-ink); border-color: transparent; }
+.st[data-s="2"] { background: var(--ok); color: var(--ok-ink); border-color: transparent; }
+.subj-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.subj-head h2 { flex: 1 1 auto; }
+.paper-head { display: flex; justify-content: space-between; gap: 8px; font: 500 11px var(--f-mono); text-transform: uppercase; letter-spacing:0; color: var(--ink2); background: var(--surface2); border-radius: 4px; padding: 5px 8px; margin: 12px 0 2px; }
+.dtl { display: block; font-size: 12.5px; color: var(--ink2); line-height: 1.4; margin-top: 2px; }
+.tbl { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 14px; }
+.tbl th { text-align: left; font: 500 11px var(--f-mono); text-transform: uppercase; letter-spacing:0; color: var(--ink2); padding: 8px 10px; border-bottom: 2px solid var(--ink); }
+.tbl td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl tr:last-child td { border-bottom: 0; }
+.card a { color: var(--accent); }
+.chartbox svg { min-width: 460px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 16px; align-items: start; }
+
+.meter { display: inline-flex; gap: 2px; }
+.meter i { width: 8px; height: 8px; border: 1px solid var(--ink2); display: block; }
+.meter i.on { background: var(--accent); border-color: var(--accent); }
+
+.review { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.flash { min-height: 230px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 18px; padding: 28px 22px; font-size: 22px; line-height: 1.35; overflow-wrap: anywhere; }
+.flash .ans { border-top: 1px dashed var(--line); padding-top: 18px; color: var(--accent); font-weight: 600; width: 100%; }
+.keyhint { font: 400 12px var(--f-mono); color: var(--ink2); }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.stats > div { padding: 14px 16px; border-left: 1px solid var(--line); min-width: 0; }
+.stats > div:first-child { border-left: 0; }
+.stats .big { font-size: 28px; }
+.stats .label { margin-bottom: 4px; }
+.chartbox { overflow-x: auto; }
+.chartbox svg { width: 100%; min-width: 460px; height: auto; display: block; }
+.chartbox text { font-family: var(--f-mono); font-size: 11px; fill: var(--ink2); }
+.chartbox text.strong { fill: var(--ink); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 13px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+footer { margin-top: 28px; font: 400 12px var(--f-mono); color: var(--ink2); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+@media (prefers-reduced-motion: reduce) { .ring .prog { transition: none; } }
+.chatlog{max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:2px}
+.msg{padding:9px 12px;border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere;max-width:92%;border:1px solid var(--line)}
+.msg.user{align-self:flex-end;background:var(--hl);color:var(--hl-ink);border-color:transparent}
+.msg.assistant{align-self:flex-start;background:var(--surface2)}
+</style>
+
+</head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="sd-logo" viewBox="0 0 1024 1024"><clipPath id="c"><rect width="1024" height="1024" rx="224"/></clipPath><g clip-path="url(#c)"><rect width="1024" height="1024" fill="#186054"/><rect x="128" y="0" width="3" height="1024" rx="0" fill="#2A7468"/><rect x="256" y="0" width="3" height="1024" rx="0" fill="#2A7468"/><rect x="384" y="0" width="3" height="1024" rx="0" fill="#2A7468"/><rect x="512" y="0" width="3" height="1024" rx="0" fill="#2A7468"/><rect x="640" y="0" width="3" height="1024" rx="0" fill="#2A7468"/><rect x="768" y="0" width="3" height="1024" rx="0" fill="#2A7468"/><rect x="896" y="0" width="3" height="1024" rx="0" fill="#2A7468"/><rect x="0" y="128" width="1024" height="3" rx="0" fill="#2A7468"/><rect x="0" y="256" width="1024" height="3" rx="0" fill="#2A7468"/><rect x="0" y="384" width="1024" height="3" rx="0" fill="#2A7468"/><rect x="0" y="512" width="1024" height="3" rx="0" fill="#2A7468"/><rect x="0" y="640" width="1024" height="3" rx="0" fill="#2A7468"/><rect x="0" y="768" width="1024" height="3" rx="0" fill="#2A7468"/><rect x="0" y="896" width="1024" height="3" rx="0" fill="#2A7468"/><rect x="302" y="252" width="420" height="520" rx="48" fill="#FAFDFB"/><rect x="340" y="418" width="344" height="44" rx="22" fill="#F4D84A"/><rect x="352" y="353" width="320" height="14" rx="7" fill="#B7C6CF"/><rect x="352" y="433" width="268" height="14" rx="7" fill="#11202A"/><rect x="352" y="513" width="320" height="14" rx="7" fill="#B7C6CF"/><rect x="352" y="593" width="320" height="14" rx="7" fill="#B7C6CF"/><rect x="352" y="673" width="168" height="14" rx="7" fill="#B7C6CF"/><circle cx="432" cy="252" r="22" fill="#11202A"/><circle cx="592" cy="252" r="22" fill="#11202A"/><circle cx="632" cy="690" r="70" fill="#186054"/><polyline points="600,692 624,716 668,664" fill="none" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/></g></symbol></svg>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><svg class="logo" width="30" height="30" viewBox="0 0 1024 1024" aria-hidden="true" style="flex:none"><use href="#sd-logo"/></svg><h1>Study Desk</h1></div>
+    <div class="meta" id="meta"><div>Sunday 25 October</div><div><b>Half Yearly</b> in 99 days</div></div>
+    <nav class="tabs" id="tabs" aria-label="Sections"><button type="button" class="tab" aria-selected="true">Today</button><button type="button" class="tab" aria-selected="false">Chapters</button><button type="button" class="tab" aria-selected="false">Flashcards<span class="count" aria-label="5 due">5</span></button><button type="button" class="tab" aria-selected="false">Progress</button><button type="button" class="tab" aria-selected="false">Exam pattern</button></nav>
+  </header>
+  <main id="main"><div class="two"><div class="stack"><section class="card" aria-label="Focus timer"><div class="label"><span>Focus timer</span><div class="seg" role="group" aria-label="Mode"><button type="button" aria-pressed="true">Focus</button><button type="button" aria-pressed="false">Break</button></div></div><div class="timer-body"><div class="ring" id="t-box"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="track" cx="100" cy="100" r="88" fill="none" stroke-width="10"></circle><circle id="t-ring" class="prog" cx="100" cy="100" r="88" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="552.92" transform="rotate(-90 100 100)" style="stroke-dashoffset: 0;"></circle></svg><div class="face"><div class="time" id="t-time" aria-live="off">25:00</div><div class="state" id="t-state">Ready</div></div></div><div class="timer-side"><div><div class="label">Studying</div><div class="chips" role="group" aria-label="Subject for this session"><button type="button" class="chip" aria-pressed="true"><span class="dot" style="background:var(--s1)"></span>Physics</button><button type="button" class="chip" aria-pressed="false"><span class="dot" style="background:var(--s2)"></span>Chemistry</button><button type="button" class="chip" aria-pressed="false"><span class="dot" style="background:var(--s3)"></span>Higher Math</button><button type="button" class="chip" aria-pressed="false"><span class="dot" style="background:var(--s4)"></span>Biology</button><button type="button" class="chip" aria-pressed="false"><span class="dot" style="background:var(--s5)"></span>ICT</button><button type="button" class="chip" aria-pressed="false"><span class="dot" style="background:var(--s6)"></span>English</button><button type="button" class="chip" aria-pressed="false"><span class="dot" style="background:var(--s7)"></span>Bangla</button></div></div><div class="btnrow"><button type="button" id="t-go" class="btn primary">Start</button><button type="button" id="t-fin" class="btn" hidden="">Finish and log</button><button type="button" class="btn ghost">Reset</button></div><div class="seg" role="group" aria-label="Timer length"><button type="button" aria-pressed="true">25/5</button><button type="button" aria-pressed="false">40/10</button><button type="button" aria-pressed="false">50/10</button></div></div></div><div class="custom"><label class="field"><span>Focus (min)</span><input type="number" id="set-focus" min="1" max="180" value="25"></label><label class="field"><span>Break (min)</span><input type="number" id="set-break" min="1" max="60" value="5"></label></div></section><section class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div class="label" style="margin-bottom:2px">Flashcards</div><p>5 cards are due for review.</p></div><button type="button" class="btn">Review now</button></section></div><div class="stack"><section class="card" aria-label="Today"><div class="label"><span>Today</span><span>0 day streak</span></div><div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px"><span class="big">0m</span><span class="muted mono small">of 4h goal</span></div><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i style="width:0%"></i></div><p class="empty" style="margin-top:8px">No sessions yet today. Start the timer to log your first one.</p><label class="field" style="margin-top:14px;max-width:180px"><span>Daily goal (min)</span><input type="number" id="set-goal" min="15" max="720" step="15" value="240"></label></section><section class="card" aria-label="Tasks"><div class="label"><span>To do</span><span>2 open</span></div><ul class="list"><li class=""><input type="checkbox" aria-label="Done: Solve 10 vector problems"><span class="grow">Solve 10 vector problems</span><span class="ex">example</span><span class="tag">Physics</span><button type="button" class="btn ghost sm" aria-label="Delete task">×</button></li><li class=""><input type="checkbox" aria-label="Done: Make a one-page formula sheet for Circles"><span class="grow">Make a one-page formula sheet for Circles</span><span class="ex">example</span><span class="tag">Higher Math</span><button type="button" class="btn ghost sm" aria-label="Delete task">×</button></li></ul><form class="inline" style="margin-top:12px"><input type="text" id="task-in" placeholder="Add a task" aria-label="New task" maxlength="200"><select id="task-subj" aria-label="Subject"><option value="">Any subject</option><option value="phy">Physics</option><option value="chem">Chemistry</option><option value="math">Higher Math</option><option value="bio">Biology</option><option value="ict">ICT</option><option value="eng">English</option><option value="ban">Bangla</option></select><button class="btn" type="submit">Add</button></form></section><section class="card" aria-label="Next exam"><div class="label"><span>Next exam</span><span>99 days left</span></div><div class="fields"><label class="field"><span>Name</span><input type="text" id="ex-name" maxlength="60" placeholder="e.g. Half-yearly" value="Half Yearly"></label><label class="field"><span>Date</span><input type="date" id="ex-date" value="2027-02-01"></label></div></section></div></div></main>
+  <footer><span id="status">Saved on this browser</span><span>Your data stays private to your account.</span></footer>
+</div>
+
+<script src="config.js"></script>
+<script>
+  var IS_APP = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+(function () {
+  'use strict';
+
+  /* ---------- helpers ---------- */
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function $(s, r) { return (r || document).querySelector(s); }
+  function h(tag, attrs) {
+    var e = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k];
+      if (v == null || v === false) return;
+      if (k === 'class') e.className = v;
+      else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+      else if (v === true) e.setAttribute(k, '');
+      else e.setAttribute(k, v);
+    });
+    for (var i = 2; i < arguments.length; i++) add(e, arguments[i]);
+    return e;
+  }
+  function add(e, c) {
+    if (c == null || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function (x) { add(e, x); }); return; }
+    e.append(c.nodeType ? c : document.createTextNode(String(c)));
+  }
+  function sv(tag, attrs) {
+    var e = document.createElementNS(SVGNS, tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+    for (var i = 2; i < arguments.length; i++) { var c = arguments[i]; if (c != null) e.append(c.nodeType ? c : document.createTextNode(String(c))); }
+    return e;
+  }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function today() { return ymd(new Date()); }
+  function parse(s) { var p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+  function addDays(s, n) { var d = parse(s); d.setDate(d.getDate() + n); return ymd(d); }
+  function dayDiff(a, b) { var x = parse(a), y = parse(b); return Math.round((Date.UTC(y.getFullYear(), y.getMonth(), y.getDate()) - Date.UTC(x.getFullYear(), x.getMonth(), x.getDate())) / 864e5); }
+  function uid() { return Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3); }
+  function fmt(m) { m = Math.round(m); if (m < 60) return m + 'm'; var r = m % 60; return Math.floor(m / 60) + 'h' + (r ? ' ' + pad(r) + 'm' : ''); }
+  function fmtTick(m) { return m % 60 === 0 ? (m / 60) + 'h' : m + 'm'; }
+  function sum(a, f) { return a.reduce(function (t, x) { return t + f(x); }, 0); }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  /* ---------- data ---------- */
+  var INTERVAL = { 1: 1, 2: 2, 3: 4, 4: 8, 5: 16 };
+  var ST_NAMES = ['Not started', 'Studying', 'Revised'];
+
+  /* Chapter lists of the current class 11-12 science textbooks (checked 25 Oct 2026).
+     No official HSC 2028 syllabus has been announced, so this may change. */
+  var SYL_V = 3;
+  var SYL = {
+    phy: {
+      1: ['ভৌতজগৎ ও পরিমাপ', 'ভেক্টর', 'গতিবিদ্যা', 'নিউটনীয় বলবিদ্যা', 'কাজ, শক্তি ও ক্ষমতা', 'মহাকর্ষ ও অভিকর্ষ', 'পদার্থের গাঠনিক ধর্ম', 'পর্যাবৃত্ত গতি', 'তরঙ্গ', 'আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব'],
+      2: ['তাপগতিবিদ্যা', 'স্থির তড়িৎ', 'চল তড়িৎ', 'তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব', 'তড়িৎচুম্বকীয় আবেশ ও পরিবর্তী প্রবাহ', 'জ্যামিতিক আলোকবিজ্ঞান', 'ভৌত আলোকবিজ্ঞান', 'আধুনিক পদার্থবিজ্ঞানের সূচনা', 'পরমাণুর মডেল ও নিউক্লিয়ার পদার্থবিজ্ঞান', 'সেমিকন্ডাক্টর ও ইলেকট্রনিক্স', 'জ্যোতির্বিজ্ঞান']
+    },
+    chem: {
+      1: ['ল্যাবরেটরির নিরাপদ ব্যবহার', 'গুণগত রসায়ন', 'পর্যায়বৃত্ত ধর্ম ও রাসায়নিক বন্ধন', 'রাসায়নিক পরিবর্তন', 'কর্মমুখী রসায়ন'],
+      2: ['পরিবেশ রসায়ন', 'জৈব রসায়ন', 'পরিমাণগত রসায়ন', 'তড়িৎ রসায়ন', 'অর্থনৈতিক রসায়ন']
+    },
+    math: {
+      1: ['ম্যাট্রিক্স ও নির্ণায়ক', 'ভেক্টর', 'সরলরেখা', 'বৃত্ত', 'বিন্যাস ও সমাবেশ', 'ত্রিকোণমিতিক অনুপাত', 'সংযুক্ত কোণের ত্রিকোণমিতিক অনুপাত', 'ফাংশন ও ফাংশনের লেখচিত্র', 'অন্তরীকরণ', 'যোগজীকরণ'],
+      2: ['বাস্তব সংখ্যা ও অসমতা', 'যোগাশ্রয়ী প্রোগ্রাম', 'জটিল সংখ্যা', 'বহুপদী ও বহুপদী সমীকরণ', 'দ্বিপদী বিস্তৃতি', 'কনিক', 'বিপরীত ত্রিকোণমিতিক ফাংশন ও ত্রিকোণমিতিক সমীকরণ', 'স্থিতিবিদ্যা', 'সমতলে বস্তুকণার গতি', 'বিস্তার পরিমাপ ও সম্ভাবনা']
+    },
+    bio: {
+      1: ['কোষ ও এর গঠন', 'কোষ বিভাজন', 'কোষ রসায়ন', 'অণুজীব', 'শৈবাল ও ছত্রাক', 'ব্রায়োফাইটা ও টেরিডোফাইটা', 'টিস্যু ও টিস্যুতন্ত্র', 'উদ্ভিদ শারীরতত্ত্ব', 'উদ্ভিদের প্রজনন', 'জৈবপ্রযুক্তি'],
+      2: ['প্রাণীর বিভিন্নতা ও শ্রেণিবিন্যাস', 'প্রাণীর পরিচিতি (হাইড্রা, ঘাসফড়িং, রুই মাছ)', 'পরিপাক ও শোষণ', 'রক্ত ও সংবহন', 'শ্বসন ও গ্যাস বিনিময়', 'রেচন', 'চলন ও গমন', 'স্নায়ুতন্ত্র ও সমন্বয়', 'বংশগতি ও বিবর্তন']
+    },
+    ict: {
+      0: ['তথ্য ও যোগাযোগ প্রযুক্তি: বিশ্ব ও বাংলাদেশ প্রেক্ষিত', 'কমিউনিকেশন সিস্টেমস ও নেটওয়ার্কিং', 'সংখ্যা পদ্ধতি ও ডিজিটাল ডিভাইস', 'ওয়েব ডিজাইন পরিচিতি ও এইচটিএমএল', 'প্রোগ্রামিং ভাষা (সি)', 'ডেটাবেজ ম্যানেজমেন্ট সিস্টেম']
+    },
+    ban: {
+      1: ['গদ্য: বাঙ্গালার নব্য লেখকদিগের প্রতি নিবেদন', 'গদ্য: অপরিচিতা', 'গদ্য: সাহিত্যে খেলা', 'গদ্য: বিলাসী', 'গদ্য: অর্ধাঙ্গী', 'গদ্য: যৌবনের গান', 'গদ্য: জীবন ও বৃক্ষ', 'গদ্য: গন্তব্য কাবুল', 'গদ্য: মাসি-পিসি', 'গদ্য: কপিলদাস মুর্মুর শেষ কাজ', 'গদ্য: রেইনকোট', 'গদ্য: নেকলেস', 'কবিতা: ঋতু-বর্ণন', 'কবিতা: বিভীষণের প্রতি মেঘনাদ', 'কবিতা: সোনার তরী', 'কবিতা: বিদ্রোহী', 'কবিতা: সুচেতনা', 'কবিতা: প্রতিদান', 'কবিতা: তাহারেই পড়ে মনে', 'কবিতা: পদ্মা', 'কবিতা: ফেব্রুয়ারি ১৯৬৯', 'কবিতা: আঠারো বছর বয়স', 'কবিতা: আমি কিংবদন্তির কথা বলছি', 'কবিতা: প্রত্যাবর্তনের লজ্জা', 'উপন্যাস: লালসালু', 'নাটক: সিরাজউদ্দৌলা'],
+      2: ['ব্যাকরণ: বাংলা উচ্চারণের নিয়ম', 'ব্যাকরণ: বাংলা বানানের নিয়ম', 'ব্যাকরণ: ব্যাকরণিক শব্দশ্রেণি', 'ব্যাকরণ: শব্দ গঠন (উপসর্গ, সমাস, প্রত্যয়)', 'ব্যাকরণ: বাক্যতত্ত্ব', 'ব্যাকরণ: অপপ্রয়োগ ও শুদ্ধ প্রয়োগ', 'নির্মিতি: পারিভাষিক শব্দ ও অনুবাদ', 'নির্মিতি: দিনলিপি ও প্রতিবেদন', 'নির্মিতি: বৈদ্যুতিন চিঠি ও আবেদনপত্র', 'নির্মিতি: সারাংশ/সারমর্ম ও ভাবসম্প্রসারণ', 'নির্মিতি: সংলাপ ও খুদে গল্প', 'নির্মিতি: প্রবন্ধ-নিবন্ধ রচনা']
+    }
+  };
+  function nkey(n) { return String(n).toLowerCase().normalize('NFC').replace(/[^\p{L}\p{M}\p{N}]/gu, ''); }
+
+  /* English: English for Today (class 11-12) units with their lessons, and the 2nd paper items with marks. */
+  var EFT = [
+    ['Unit 1: Education and Life', 'The Parrot’s Tale · Education and Technology · Children in School · Civic Engagement'],
+    ['Unit 2: Art and Craft', 'What is Beauty? · Folk Music · Art · Craft'],
+    ['Unit 3: Myths and Literature', 'Myths of Bengal · Icarus · The Legend of Gazi · Khona'],
+    ['Unit 4: History', 'Three Speeches · Great Women'],
+    ['Unit 5: Human Rights', 'Are We Aware of These Rights-I? · Are We Aware of These Rights-II? · Rights to Health and Education · Coal Miners · Frederick Douglass'],
+    ['Unit 6: Dreams', 'What is a Dream? · Dreams in Literature'],
+    ['Unit 7: Youthful Achievers', 'Brojen Das: On Crossing the English Channel · Scaling a Mountain Peak · The Unbeaten Girls'],
+    ['Unit 8: Relationship', 'Family Relationship · Warmth in Relationships · A Mother in Mannville · Love'],
+    ['Unit 9: Adolescence', 'Storm and Stresses of Adolescence · Adolescence and Some Related Problems in Bangladesh · The Story of Shilpi · Say ‘No’ to Bullying'],
+    ['Unit 10: Lifestyle', 'Manners around the World · Etiquette and Netiquette · Food and Culture · Fitness · Consumerism'],
+    ['Unit 11: Peace and Conflict', 'Situations of Conflict · The Old Man at the Bridge · Stories from Gaza · Peace in Literature · Opinions through Images'],
+    ['Unit 12: Environment and Nature', 'Water, Water Everywhere · The Greta Effect · Endangered Species · What is Environmental Justice? · Limits of the Scientific Method']
+  ];
+  var G2 = [
+    ['Gap filling with articles', 'Fill the gaps with a, an, the or no article · 5 marks'],
+    ['Gap filling with prepositions', 'Fill the gaps with suitable prepositions · 5 marks'],
+    ['Gap filling with clues', 'Fill the gaps using the given clue words · 5 marks'],
+    ['Completing sentences', 'Complete sentences with suitable clauses or phrases · 5 marks'],
+    ['Use of verbs', 'Right forms of verbs and subject-verb agreement · 5 marks'],
+    ['Changing sentences', 'Transformation of sentences · 5 marks'],
+    ['Narrative style', 'Direct to indirect speech and the reverse · 5 marks'],
+    ['Pronoun reference', 'Say what each pronoun refers to · 5 marks'],
+    ['Use of modifiers', 'Fill the gaps with suitable modifiers · 5 marks'],
+    ['Sentence connectors', 'Join ideas with suitable connectors · 5 marks'],
+    ['Synonym and antonym', 'Give a synonym or antonym for each given word · 5 marks'],
+    ['Punctuation', 'Punctuate a given passage · 5 marks'],
+    ['Formal letter and e-mail', 'Writing · 8 marks'],
+    ['Report writing', 'Writing · 8 marks'],
+    ['Paragraph writing', 'Writing · 10 marks'],
+    ['Free writing (200–250 words)', 'Writing · 14 marks']
+  ];
+  SYL.eng = { 1: EFT.map(function (x) { return x[0]; }), 2: G2.map(function (x) { return x[0]; }) };
+  var SYL_D = {};
+  EFT.concat(G2).forEach(function (x) { SYL_D['eng|' + nkey(x[0])] = x[1]; });
+  [
+    ['গদ্য: বাঙ্গালার নব্য লেখকদিগের প্রতি নিবেদন', 'বঙ্কিমচন্দ্র চট্টোপাধ্যায়'],
+    ['গদ্য: অপরিচিতা', 'রবীন্দ্রনাথ ঠাকুর'],
+    ['গদ্য: সাহিত্যে খেলা', 'প্রমথ চৌধুরী'],
+    ['গদ্য: বিলাসী', 'শরৎচন্দ্র চট্টোপাধ্যায়'],
+    ['গদ্য: অর্ধাঙ্গী', 'রোকেয়া সাখাওয়াত হোসেন'],
+    ['গদ্য: যৌবনের গান', 'কাজী নজরুল ইসলাম'],
+    ['গদ্য: জীবন ও বৃক্ষ', 'মোতাহের হোসেন চৌধুরী'],
+    ['গদ্য: গন্তব্য কাবুল', 'সৈয়দ মুজতবা আলী'],
+    ['গদ্য: মাসি-পিসি', 'মানিক বন্দ্যোপাধ্যায়'],
+    ['গদ্য: কপিলদাস মুর্মুর শেষ কাজ', 'শওকত আলী'],
+    ['গদ্য: রেইনকোট', 'আখতারুজ্জামান ইলিয়াস'],
+    ['গদ্য: নেকলেস', 'গী দ্য মোপাসাঁ'],
+    ['কবিতা: ঋতু-বর্ণন', 'আলাওল'],
+    ['কবিতা: বিভীষণের প্রতি মেঘনাদ', 'মাইকেল মধুসূদন দত্ত'],
+    ['কবিতা: সোনার তরী', 'রবীন্দ্রনাথ ঠাকুর'],
+    ['কবিতা: বিদ্রোহী', 'কাজী নজরুল ইসলাম'],
+    ['কবিতা: সুচেতনা', 'জীবনানন্দ দাশ'],
+    ['কবিতা: প্রতিদান', 'জসীমউদ্‌দীন'],
+    ['কবিতা: তাহারেই পড়ে মনে', 'সুফিয়া কামাল'],
+    ['কবিতা: পদ্মা', 'ফররুখ আহমদ'],
+    ['কবিতা: ফেব্রুয়ারি ১৯৬৯', 'শামসুর রাহমান'],
+    ['কবিতা: আঠারো বছর বয়স', 'সুকান্ত ভট্টাচার্য'],
+    ['কবিতা: আমি কিংবদন্তির কথা বলছি', 'আবু জাফর ওবায়দুল্লাহ'],
+    ['কবিতা: প্রত্যাবর্তনের লজ্জা', 'আল মাহমুদ'],
+    ['উপন্যাস: লালসালু', 'সৈয়দ ওয়ালীউল্লাহ'],
+    ['নাটক: সিরাজউদ্দৌলা', 'সিকান্দার আবু জাফর'],
+    ['ব্যাকরণ: বাংলা উচ্চারণের নিয়ম', '৫ নম্বর · ৫টি নিয়ম লেখা, অথবা ৮টি শব্দ থেকে ৫টির শুদ্ধ উচ্চারণ'],
+    ['ব্যাকরণ: বাংলা বানানের নিয়ম', '৫ নম্বর · ৫টি নিয়ম লেখা, অথবা ৮টি অশুদ্ধ বানান থেকে ৫টির শুদ্ধ বানান'],
+    ['ব্যাকরণ: ব্যাকরণিক শব্দশ্রেণি', '৫ নম্বর · আট প্রকার শব্দশ্রেণি থেকে বর্ণনামূলক প্রশ্ন, অথবা ৮টি বাক্য থেকে ৫টি শব্দের শ্রেণি নির্ণয়'],
+    ['ব্যাকরণ: শব্দ গঠন (উপসর্গ, সমাস, প্রত্যয়)', '৫ নম্বর · উপসর্গ থেকে বর্ণনামূলক প্রশ্ন, অথবা ৮টি শব্দ থেকে ৫টির ব্যাসবাক্যসহ সমাস বা প্রকৃতি-প্রত্যয় নির্ণয়'],
+    ['ব্যাকরণ: বাক্যতত্ত্ব', '৫ নম্বর · বাক্যের গুণ ও প্রকারভেদ থেকে বর্ণনামূলক প্রশ্ন, অথবা ৮টি বাক্য থেকে ৫টির রূপান্তর'],
+    ['ব্যাকরণ: অপপ্রয়োগ ও শুদ্ধ প্রয়োগ', '৫ নম্বর · ৮টি অশুদ্ধ বাক্য থেকে ৫টির শুদ্ধরূপ, অথবা অনুচ্ছেদের অপপ্রয়োগ শুদ্ধ করা'],
+    ['নির্মিতি: পারিভাষিক শব্দ ও অনুবাদ', '১০ নম্বর · দুটি প্রশ্নের মধ্যে একটির উত্তর'],
+    ['নির্মিতি: দিনলিপি ও প্রতিবেদন', '১০ নম্বর · দুটি প্রশ্নের মধ্যে একটির উত্তর'],
+    ['নির্মিতি: বৈদ্যুতিন চিঠি ও আবেদনপত্র', '১০ নম্বর · দুটি প্রশ্নের মধ্যে একটির উত্তর'],
+    ['নির্মিতি: সারাংশ/সারমর্ম ও ভাবসম্প্রসারণ', '১০ নম্বর · দুটি প্রশ্নের মধ্যে একটির উত্তর'],
+    ['নির্মিতি: সংলাপ ও খুদে গল্প', '১০ নম্বর · দুটি প্রশ্নের মধ্যে একটির উত্তর'],
+    ['নির্মিতি: প্রবন্ধ-নিবন্ধ রচনা', '২০ নম্বর · ৫টি বিকল্পের মধ্যে একটি রচনা']
+  ].forEach(function (x) { SYL_D['ban|' + nkey(x[0])] = x[1]; });
+  function sylPaper(sid, name) {
+    var k = nkey(name), d = SYL[sid];
+    if (!d) return 0;
+    for (var p in d) if (d[p].some(function (x) { return nkey(x) === k; })) return Number(p);
+    return 0;
+  }
+  /* Adds any standard chapter that is missing and tags existing matches with their paper. Returns how many were added. */
+  function mergeSyllabus(st) {
+    var added = 0;
+    Object.keys(SYL).forEach(function (sid) {
+      if (!st.subjects.some(function (s) { return s.id === sid; })) return;
+      Object.keys(SYL[sid]).forEach(function (p) {
+        SYL[sid][p].forEach(function (name) {
+          var k = nkey(name), pp = Number(p);
+          var ex = st.chapters.find(function (c) { return c.subj === sid && nkey(c.name) === k; });
+          var dt = SYL_D[sid + '|' + k];
+          if (ex) { if (!ex.p) ex.p = pp; if (dt && !ex.d) ex.d = dt; }
+          else { var nc = { id: uid(), subj: sid, name: name, st: 0, p: pp }; if (dt) nc.d = dt; st.chapters.push(nc); added++; }
+        });
+      });
+    });
+    return added;
+  }
+  function paperLabel(sid, p) {
+    if (!p) return 'Other chapters';
+    return (p === 1 ? '1st paper' : '2nd paper') + (sid === 'bio' ? (p === 1 ? ' · Botany' : ' · Zoology') : '') + (sid === 'eng' ? (p === 1 ? ' · English for Today' : ' · Grammar and composition') : '') + (sid === 'ban' ? (p === 1 ? ' · Prose, poetry, novel and play' : ' · Grammar and composition') : '');
+  }
+
+
+  /* Which exam each chapter first appears in, from the school's exam syllabus pages (26 Oct 2026).
+     Stages: 1 half-yearly, 2 annual, 3 pre-test, 4 test (full board syllabus).
+     Entry: [paper, stage, name, note, [other names the app may already use]] */
+  var EXV = 2;
+  var EXAM_NAMES = ['', 'Half-yearly', 'Annual', 'Pre-test', 'Test'];
+  var EXAMS = {
+    phy: [
+      [1, 1, 'ভৌত জগৎ ও পরিমাপ'], [1, 1, 'ভেক্টর'], [1, 1, 'গতিবিদ্যা'], [1, 1, 'নিউটনীয় বলবিদ্যা'], [1, 1, 'কাজ, শক্তি ও ক্ষমতা'], [1, 1, 'মহাকর্ষ ও অভিকর্ষ'],
+      [1, 2, 'পদার্থের গাঠনিক ধর্ম'], [1, 2, 'পর্যাবৃত্তিক গতি', '', ['পর্যাবৃত্ত গতি']], [1, 2, 'তরঙ্গ'], [1, 2, 'আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব'],
+      [2, 1, 'তাপগতিবিদ্যা'], [2, 2, 'স্থির তড়িৎ', 'বার্ষিক: এই অধ্যায় এবং অর্ধ-বার্ষিকের সম্পূর্ণ সিলেবাস'],
+      [2, 3, 'চল তড়িৎ'], [2, 3, 'তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব'], [2, 3, 'তাড়িতচৌম্বকীয় আবেশ ও পরিবর্তী প্রবাহ', '', ['তড়িৎচুম্বকীয় আবেশ ও পরিবর্তী প্রবাহ']],
+      [2, 3, 'জ্যামিতিক আলোকবিজ্ঞান'], [2, 3, 'ভৌত আলোকবিজ্ঞান'], [2, 3, 'আধুনিক পদার্থবিজ্ঞানের সূচনা']
+    ],
+    chem: [
+      [1, 1, 'ল্যাবরেটরির নিরাপদ ব্যবহার'], [1, 1, 'গুণগত রসায়ন'], [1, 1, 'মৌলের পর্যায়বৃত্ত ধর্ম ও রাসায়নিক বন্ধন', '', ['পর্যায়বৃত্ত ধর্ম ও রাসায়নিক বন্ধন']],
+      [1, 2, 'রাসায়নিক পরিবর্তন'], [1, 2, 'কর্মমুখী রসায়ন'],
+      [2, 3, 'পরিবেশ রসায়ন'], [2, 3, 'জৈব রসায়ন'], [2, 3, 'পরিমাণগত রসায়ন']
+    ],
+    math: [
+      [1, 1, 'ম্যাট্রিক্স ও নির্ণায়ক'], [1, 1, 'ভেক্টর'], [1, 1, 'সরলরেখা'],
+      [1, 1, 'সংযুক্ত কোণের ত্রিকোণমিতিক অনুপাত', 'অর্ধ-বার্ষিক: গুণিতক কোণ পর্যন্ত · বার্ষিক: উপগুণিতক কোণ থেকে শেষ পর্যন্ত'],
+      [1, 2, 'বৃত্ত'],
+      [1, 2, 'অন্তরীকরণ', 'বার্ষিক: পর্যায়ক্রমিক অন্তরীকরণের আগ পর্যন্ত · প্রাক-নির্বাচনি: পর্যায়ক্রমিক অন্তরীকরণ থেকে শেষ পর্যন্ত'],
+      [1, 2, 'যোগজীকরণ', 'বার্ষিক: অংশায়ন পদ্ধতিতে যোগজীকরণ পর্যন্ত'],
+      [1, 3, 'বিন্যাস ও সমাবেশ'], [1, 3, 'ত্রিকোণমিতিক অনুপাত'], [1, 3, 'ফাংশন ও ফাংশনের লেখচিত্র'],
+      [2, 1, 'বাস্তব সংখ্যা ও অসমতা'], [2, 1, 'যোগাশ্রয়ী প্রোগ্রাম'], [2, 1, 'জটিল সংখ্যা'],
+      [2, 2, 'বহুপদী ও বহুপদী সমীকরণ'], [2, 2, 'দ্বিপদী বিস্তৃতি'], [2, 2, 'বিপরীত ত্রিকোণমিতিক ফাংশন ও সমীকরণ', '', ['বিপরীত ত্রিকোণমিতিক ফাংশন ও ত্রিকোণমিতিক সমীকরণ']],
+      [2, 3, 'কনিক'], [2, 3, 'বিস্তার পরিমাপ ও সম্ভাবনা']
+    ],
+    bio: [
+      [1, 1, 'কোষ ও এর গঠন'], [1, 1, 'কোষ বিভাজন'], [1, 1, 'কোষ রসায়ন'],
+      [1, 2, 'অণুজীব'], [1, 2, 'শৈবাল ও ছত্রাক'], [1, 2, 'টিস্যু ও টিস্যুতন্ত্র'], [1, 2, 'উদ্ভিদ প্রজনন', '', ['উদ্ভিদের প্রজনন']],
+      [1, 3, 'ব্রায়োফাইটা ও টেরিডোফাইটা'], [1, 3, 'নগ্নবীজী ও আবৃতবীজী উদ্ভিদ'], [1, 3, 'উদ্ভিদ শারীরতত্ত্ব'],
+      [2, 1, 'প্রাণীর বিভিন্নতা ও শ্রেণিবিন্যাস'], [2, 1, 'প্রাণীর পরিচিতি', '', ['প্রাণীর পরিচিতি (হাইড্রা, ঘাসফড়িং, রুই মাছ)']], [2, 1, 'পরিপাক ও শোষণ'], [2, 1, 'রক্ত সঞ্চালন', '', ['রক্ত ও সংবহন']],
+      [2, 2, 'শ্বসন ও শ্বাসক্রিয়া', '', ['শ্বসন ও গ্যাস বিনিময়']], [2, 2, 'চলন ও অঙ্গচালনা', '', ['চলন ও গমন']], [2, 2, 'সমন্বয় ও নিয়ন্ত্রণ', '', ['স্নায়ুতন্ত্র ও সমন্বয়']], [2, 2, 'জিনতত্ত্ব ও বিবর্তন', '', ['বংশগতি ও বিবর্তন']],
+      [2, 3, 'বর্জ্য ও নিষ্কাশন', '', ['রেচন']], [2, 3, 'মানব জীবনের ধারাবাহিকতা'],
+      [2, 4, 'মানব দেহের প্রতিরক্ষা (ইমিউনিটি)'], [2, 4, 'প্রাণীর আচরণ']
+    ],
+    ict: [
+      [0, 1, 'তথ্য ও যোগাযোগ প্রযুক্তি: বিশ্ব ও বাংলাদেশ প্রেক্ষিত'], [0, 1, 'সংখ্যা পদ্ধতি ও ডিজিটাল ডিভাইস'],
+      [0, 2, 'কমিউনিকেশন সিস্টেমস ও নেটওয়ার্কিং'], [0, 2, 'ওয়েব ডিজাইন পরিচিতি ও এইচটিএমএল'],
+      [0, 3, 'প্রোগ্রামিং ভাষা (সি)']
+    ],
+    eng: [
+      [1, 1, 'Unit 1: Education and Life'], [1, 1, 'Unit 2: Art and Craft'], [1, 1, 'Unit 3: Myths and Literature'], [1, 1, 'Unit 4: History'],
+      [1, 1, 'Reading for Pleasure: Deathbed', 'Poem by Imam Al-Ghazali'],
+      [1, 1, 'Reading for Pleasure: “Hope” is the thing with feathers', 'Poem by Emily Dickinson'],
+      [1, 1, 'Reading for Pleasure: Thank You, Ma’am', 'Short story by Langston Hughes'],
+      [1, 2, 'Unit 5: Human Rights'], [1, 2, 'Unit 6: Dreams'], [1, 2, 'Unit 7: Youthful Achievers'], [1, 2, 'Unit 8: Relationship'],
+      [1, 2, 'Reading for Pleasure: Bird', 'Poem by Pablo Neruda'],
+      [1, 2, 'Reading for Pleasure: Toba Tek Singh', 'Short story by Saadat Hasan Manto'],
+      [1, 3, 'Unit 9: Adolescence'], [1, 3, 'Unit 10: Lifestyle'], [1, 3, 'Unit 11: Peace and Conflict'], [1, 3, 'Unit 12: Environment and Nature'],
+      [1, 3, 'Reading for Pleasure: Sultana’s Dream', 'Short story by Rokeya Sakhawat Hossain'],
+      [1, 3, 'Reading for Pleasure: The Proposal', 'Drama by Anton Chekhov'],
+      [2, 1, 'Gap filling with articles'], [2, 1, 'Special use of some words and phrases'], [2, 1, 'Completing sentences'], [2, 1, 'Use of verbs'], [2, 1, 'Use of modifiers'],
+      [2, 1, 'Formal letter and e-mail'], [2, 1, 'Report writing'],
+      [2, 2, 'Gap filling with prepositions'], [2, 2, 'Changing sentences'], [2, 2, 'Narrative style'], [2, 2, 'Pronoun reference'], [2, 2, 'Sentence connectors'],
+      [2, 2, 'Paragraph writing'], [2, 2, 'Free writing (200–250 words)', 'Composition writing'],
+      [2, 3, 'Synonym and antonym'], [2, 3, 'Punctuation', 'Punctuate a given passage and use of capitals · 5 marks']
+    ]
+  };
+  EXAMS.ban = (function () {
+    var g = SYL.ban[1], out = [];
+    var half = [0, 1, 4, 6, 8, 10, 13, 14, 16, 17, 18, 22], ann = [2, 3, 5, 7, 9, 11, 12, 15, 19, 20, 21, 23];
+    half.forEach(function (i) { out.push([1, 1, g[i]]); });
+    ann.forEach(function (i) { out.push([1, 2, g[i]]); });
+    out.push([1, 1, g[24], 'অর্ধ-বার্ষিক: অর্ধেক · বার্ষিক: সম্পূর্ণ']);
+    out.push([1, 1, g[25], 'অর্ধ-বার্ষিক: ১ম ও ২য় অঙ্ক · বার্ষিক: সম্পূর্ণ']);
+    SYL.ban[2].forEach(function (n) { out.push([2, 3, n]); });
+    return out;
+  })();
+  /* Subjects where the pages cover every exam, so chapters not listed belong to the final test only. */
+  var EXAM_FULL = { ban: 1, phy: 1, chem: 1, math: 1, bio: 1, ict: 1 };
+  function inSyl(sid, name) {
+    var k = nkey(name), d = SYL[sid]; if (!d) return false;
+    return Object.keys(d).some(function (p) { return d[p].some(function (x) { return nkey(x) === k; }); });
+  }
+  /* Tags chapters with their exam and adds any listed chapter the app did not have. Returns how many were added. */
+  function applyExams(st) {
+    var added = 0;
+    Object.keys(EXAMS).forEach(function (sid) {
+      if (!st.subjects.some(function (s) { return s.id === sid; })) return;
+      var done = {};
+      EXAMS[sid].forEach(function (e) {
+        var keys = [nkey(e[2])].concat((e[4] || []).map(nkey));
+        var c = st.chapters.find(function (x) { return x.subj === sid && (x.p || 0) === e[0] && keys.indexOf(nkey(x.name)) >= 0; });
+        if (!c) { c = { id: uid(), subj: sid, name: e[2], st: 0, p: e[0] }; st.chapters.push(c); added++; }
+        c.x = e[1]; done[c.id] = 1;
+        if (e[3] && !c.d) c.d = e[3];
+      });
+      if (EXAM_FULL[sid]) st.chapters.forEach(function (c) { if (c.subj === sid && !done[c.id] && !c.x && inSyl(sid, c.name)) c.x = 4; });
+    });
+    return added;
+  }
+
+  function seed() {
+    var subjects = [
+      { id: 'phy', name: 'Physics', c: 0 }, { id: 'chem', name: 'Chemistry', c: 1 },
+      { id: 'math', name: 'Higher Math', c: 2 }, { id: 'bio', name: 'Biology', c: 3 },
+      { id: 'ict', name: 'ICT', c: 4 }, { id: 'eng', name: 'English', c: 5 }, { id: 'ban', name: 'Bangla', c: 6 }
+    ];
+    var chapters = [];
+    var tmp = { subjects: subjects, chapters: chapters };
+    mergeSyllabus(tmp); applyExams(tmp);
+    var t = today();
+    function card(subj, q, a) { return { id: uid(), subj: subj, q: q, a: a, box: 1, due: t, ex: true }; }
+    return {
+      v: 1, updated: 0, syl: SYL_V, exv: EXV, subjects: subjects, chapters: chapters,
+      cards: [
+        card('phy', 'SI unit of Young’s modulus?', 'Pascal (N/m²)'),
+        card('phy', 'Escape velocity from Earth’s surface', 'v = √(2gR) ≈ 11.2 km/s'),
+        card('chem', 'Aufbau principle', 'Electrons fill the lowest-energy orbitals first.'),
+        card('math', 'Determinant of [[a, b], [c, d]]', 'ad − bc'),
+        card('math', 'Dot product of vectors A and B', '|A||B| cos θ')
+      ],
+      sessions: [],
+      notes: [],
+      tasks: [
+        { id: uid(), text: 'Solve 10 vector problems', subj: 'phy', done: false, ex: true },
+        { id: uid(), text: 'Make a one-page formula sheet for Circles', subj: 'math', done: false, ex: true }
+      ],
+      settings: { goal: 240, focus: 25, brk: 5, exam: { name: '', date: '' } }
+    };
+  }
+  function normalize(o) {
+    var d = seed();
+    if (!o || typeof o !== 'object') return d;
+    ['subjects', 'chapters', 'cards', 'sessions', 'tasks', 'notes'].forEach(function (k) { if (!Array.isArray(o[k])) o[k] = d[k]; });
+    o.settings = Object.assign({}, d.settings, o.settings || {});
+    o.settings.exam = Object.assign({ name: '', date: '' }, o.settings.exam || {});
+    o.updated = o.updated || 0;
+    o.chapters.forEach(function (c) { if (typeof c.p !== 'number') c.p = sylPaper(c.subj, c.name); });
+    if ((o.syl || 0) < SYL_V) { mergeSyllabus(o); o.syl = SYL_V; }
+    if ((o.exv || 0) < EXV) { applyExams(o); o.exv = EXV; }
+    return o;
+  }
+
+  /* ---------- storage: private account store, with this-browser fallback ---------- */
+  var LS = 'studydesk.bn.v1';
+  var S;
+  try { var raw = localStorage.getItem(LS); S = raw ? normalize(JSON.parse(raw)) : seed(); } catch (e) { S = seed(); }
+  var store = { ref: null };
+  var saveTimer = null, saving = false, dirty = false;
+
+  function setStatus(t) { var e = $('#status'); if (e) e.textContent = t; }
+  function saveLocal() { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) { /* storage unavailable */ } }
+  function persist() { saveLocal(); dirty = true; setStatus('Saving…'); clearTimeout(saveTimer); saveTimer = setTimeout(flush, 700); }
+  async function flush() {
+    if (!store.ref) { dirty = false; setStatus('Saved on this browser'); return; }
+    if (saving) { saveTimer = setTimeout(flush, 400); return; }
+    saving = true; dirty = false;
+    try { await store.ref.set(clone(S)); setStatus('Saved to your account'); }
+    catch (e) { setStatus('Saved on this browser only'); }
+    saving = false;
+    if (dirty) flush();
+  }
+  function commit() { S.updated = Date.now(); persist(); render(); }
+
+  async function initStore() {
+    setStatus('Saved on this browser');
+    try {
+      if (!window.claude || !window.claude.use) return;
+      var db = await window.claude.use('db');
+      var user = await window.claude.use('user');
+      if (!db || !user) return;
+      var id = await user.id();
+      if (!id) return;
+      var ref = db.doc('data/users/' + id + '/state');
+      var snap = await ref.get();
+      if (snap.exists) {
+        var remote = snap.data();
+        if ((remote.updated || 0) > (S.updated || 0)) {
+          S = normalize(clone(remote)); saveLocal(); store.ref = ref; setStatus('Saved to your account'); render(); return;
+        }
+      }
+      store.ref = ref;
+      if (S.updated > 0 || !snap.exists) { dirty = true; flush(); } else setStatus('Saved to your account');
+    } catch (e) { setStatus('Saved on this browser only'); }
+  }
+
+  /* ---------- subjects ---------- */
+  function subj(id) { return S.subjects.find(function (s) { return s.id === id; }) || { id: id || 'other', name: 'Other', c: 6 }; }
+  function col(s) { return 'var(--s' + ((s.c % 7) + 1) + ')'; }
+  function dotFor(s) { return h('span', { class: 'dot', style: 'background:' + col(s) }); }
+  function subjSelect(id, selected, anyLabel) {
+    var sel = h('select', { id: id, 'aria-label': 'Subject' });
+    if (anyLabel) sel.append(h('option', { value: '' }, anyLabel));
+    S.subjects.forEach(function (s) { var o = h('option', { value: s.id }, s.name); if (s.id === selected) o.selected = true; sel.append(o); });
+    return sel;
+  }
+
+  /* ---------- timer ---------- */
+  var T = { mode: 'focus', total: 25 * 60, remaining: 25 * 60, endAt: null, running: false, subj: null, iv: null };
+  var actx = null, wake = null;
+  function prime() { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) { /* no audio */ } }
+  function beep() {
+    try {
+      if (!actx) return;
+      [0, 0.28, 0.56].forEach(function (t, i) {
+        var o = actx.createOscillator(), g = actx.createGain(), n = actx.currentTime + t;
+        o.frequency.value = i === 2 ? 880 : 660;
+        g.gain.setValueAtTime(0.0001, n); g.gain.exponentialRampToValueAtTime(0.2, n + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, n + 0.22);
+        o.connect(g); g.connect(actx.destination); o.start(n); o.stop(n + 0.24);
+      });
+    } catch (e) { /* no audio */ }
+  }
+  function mmss(s) { return pad(Math.floor(s / 60)) + ':' + pad(s % 60); }
+  function ensureSubj() { if (!S.subjects.some(function (s) { return s.id === T.subj; })) T.subj = S.subjects[0] ? S.subjects[0].id : null; }
+  function setMode(m) {
+    stopTick(); T.mode = m; T.total = (m === 'focus' ? S.settings.focus : S.settings.brk) * 60; T.remaining = T.total; T.endAt = null; T.running = false;
+  }
+  function stopTick() { if (T.iv) { clearInterval(T.iv); T.iv = null; } if (wake) { try { wake.release(); } catch (e) { /* ignore */ } wake = null; } }
+  function startT() {
+    if (T.running) return;
+    prime();
+    T.endAt = Date.now() + T.remaining * 1000; T.running = true;
+    T.iv = setInterval(tick, 250);
+    try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function (w) { wake = w; }).catch(function () {}); } catch (e) { /* optional */ }
+    tick();
+  }
+  function pauseT() {
+    if (!T.running) return;
+    T.remaining = Math.max(0, Math.ceil((T.endAt - Date.now()) / 1000)); T.running = false; stopTick(); paintTimer();
+  }
+  function tick() {
+    if (T.running) {
+      T.remaining = Math.max(0, Math.ceil((T.endAt - Date.now()) / 1000));
+      if (T.remaining <= 0) { completeT(); return; }
+    }
+    paintTimer();
+  }
+  function logSession(sid, min, d) {
+    if (min < 1) return;
+    S.sessions.push({ id: uid(), d: d || today(), subj: sid || 'other', min: Math.round(min) });
+  }
+  function completeT() {
+    stopTick(); T.running = false; beep();
+    if (T.mode === 'focus') { logSession(T.subj, T.total / 60); setMode('break'); }
+    else setMode('focus');
+    commit();
+  }
+  function finishEarly() {
+    var el = T.total - T.remaining; if (T.running) el = T.total - Math.max(0, Math.ceil((T.endAt - Date.now()) / 1000));
+    stopTick(); T.running = false;
+    logSession(T.subj, Math.floor(el / 60));
+    setMode('focus'); commit();
+  }
+  function paintTimer() {
+    var C = 2 * Math.PI * 88;
+    var t = $('#t-time'), r = $('#t-ring'), st = $('#t-state'), go = $('#t-go'), fin = $('#t-fin'), box = $('#t-box');
+    if (t) t.textContent = mmss(T.remaining);
+    if (r) r.style.strokeDashoffset = String(C * (1 - T.remaining / T.total));
+    if (box) box.className = 'ring' + (T.mode === 'break' ? ' brk' : '');
+    if (st) st.textContent = T.mode === 'focus' ? (T.running ? 'Focusing' : (T.remaining < T.total ? 'Paused' : 'Ready')) : (T.running ? 'Break' : 'Break ready');
+    if (go) go.textContent = T.running ? 'Pause' : (T.remaining < T.total ? 'Resume' : 'Start');
+    if (fin) fin.hidden = !(T.mode === 'focus' && (T.total - T.remaining >= 60));
+    document.title = T.running ? mmss(T.remaining) + ' · Study Desk' : 'Study Desk';
+  }
+
+  /* ---------- derived ---------- */
+  function minutesOn(d) { return sum(S.sessions.filter(function (s) { return s.d === d; }), function (s) { return s.min; }); }
+  function streak() {
+    var days = {}; S.sessions.forEach(function (s) { days[s.d] = 1; });
+    var d = today(); if (!days[d]) d = addDays(d, -1);
+    var n = 0; while (days[d]) { n++; d = addDays(d, -1); }
+    return n;
+  }
+  function dueCards() { var t = today(); return S.cards.filter(function (c) { return c.due <= t; }); }
+
+  /* ---------- confirm-on-second-click button ---------- */
+  function confirmBtn(label, confirmLabel, aria, fn) {
+    var armed = false, tm;
+    var b = h('button', { type: 'button', class: 'btn ghost sm', 'aria-label': aria, onclick: function () {
+      if (!armed) {
+        armed = true; b.textContent = confirmLabel; b.classList.add('danger');
+        tm = setTimeout(function () { armed = false; b.textContent = label; b.classList.remove('danger'); }, 3000);
+      } else { clearTimeout(tm); fn(); }
+    } }, label);
+    return b;
+  }
+
+  /* ---------- views ---------- */
+  var tab = 'today';
+  var refocus = null;
+  var UI = { exam: 0, cardFilter: 'all', cardSubj: null, logSubj: null };
+  var R = null;
+
+  function viewToday() {
+    ensureSubj();
+    var t = today(), mins = minutesOn(t), goal = S.settings.goal || 240;
+    var pct = Math.min(100, Math.round(mins / goal * 100));
+
+    /* timer */
+    var C = 2 * Math.PI * 88;
+    var ring = sv('svg', { viewBox: '0 0 200 200', 'aria-hidden': 'true' },
+      sv('circle', { class: 'track', cx: 100, cy: 100, r: 88, fill: 'none', 'stroke-width': 10 }),
+      sv('circle', { id: 't-ring', class: 'prog', cx: 100, cy: 100, r: 88, fill: 'none', 'stroke-width': 10, 'stroke-linecap': 'round', 'stroke-dasharray': C.toFixed(2), transform: 'rotate(-90 100 100)' }));
+    var chips = h('div', { class: 'chips', role: 'group', 'aria-label': 'Subject for this session' },
+      S.subjects.map(function (s) {
+        return h('button', { type: 'button', class: 'chip', 'aria-pressed': String(T.subj === s.id), onclick: function () { T.subj = s.id; render(); } }, dotFor(s), s.name);
+      }));
+    var presets = [[25, 5], [40, 10], [50, 10]];
+    var seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Timer length' }, presets.map(function (p) {
+      return h('button', { type: 'button', 'aria-pressed': String(S.settings.focus === p[0] && S.settings.brk === p[1]), onclick: function () {
+        S.settings.focus = p[0]; S.settings.brk = p[1]; if (!T.running) setMode(T.mode); commit();
+      } }, p[0] + '/' + p[1]);
+    }));
+    var modeSeg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Mode' },
+      h('button', { type: 'button', 'aria-pressed': String(T.mode === 'focus'), onclick: function () { if (T.mode !== 'focus') { setMode('focus'); render(); } } }, 'Focus'),
+      h('button', { type: 'button', 'aria-pressed': String(T.mode === 'break'), onclick: function () { if (T.mode !== 'break') { setMode('break'); render(); } } }, 'Break'));
+    function numField(label, id, val, min, max, cb) {
+      return h('label', { class: 'field' }, h('span', null, label),
+        h('input', { type: 'number', id: id, min: min, max: max, value: val, onchange: function (e) {
+          var v = Math.max(min, Math.min(max, parseInt(e.target.value, 10) || val)); cb(v);
+        } }));
+    }
+    var timer = h('section', { class: 'card', 'aria-label': 'Focus timer' },
+      h('div', { class: 'label' }, h('span', null, 'Focus timer'), modeSeg),
+      h('div', { class: 'timer-body' },
+        h('div', { class: 'ring', id: 't-box' }, ring, h('div', { class: 'face' }, h('div', { class: 'time', id: 't-time', 'aria-live': 'off' }, '25:00'), h('div', { class: 'state', id: 't-state' }, 'Ready'))),
+        h('div', { class: 'timer-side' },
+          T.mode === 'focus' ? h('div', null, h('div', { class: 'label' }, 'Studying'), chips) : h('p', { class: 'muted' }, 'Stand up, drink some water, rest your eyes.'),
+          h('div', { class: 'btnrow' },
+            h('button', { type: 'button', id: 't-go', class: 'btn primary', onclick: function () { if (T.running) pauseT(); else startT(); } }, 'Start'),
+            h('button', { type: 'button', id: 't-fin', class: 'btn', onclick: finishEarly }, 'Finish and log'),
+            h('button', { type: 'button', class: 'btn ghost', onclick: function () { setMode(T.mode); render(); } }, 'Reset')),
+          seg)),
+      h('div', { class: 'custom' },
+        numField('Focus (min)', 'set-focus', S.settings.focus, 1, 180, function (v) { S.settings.focus = v; if (!T.running) setMode(T.mode); commit(); }),
+        numField('Break (min)', 'set-break', S.settings.brk, 1, 60, function (v) { S.settings.brk = v; if (!T.running) setMode(T.mode); commit(); })));
+
+    /* goal */
+    var bySubj = {};
+    S.sessions.filter(function (s) { return s.d === t; }).forEach(function (s) { bySubj[s.subj] = (bySubj[s.subj] || 0) + s.min; });
+    var goalCard = h('section', { class: 'card', 'aria-label': 'Today' },
+      h('div', { class: 'label' }, h('span', null, 'Today'), h('span', null, streak() + (streak() === 1 ? ' day streak' : ' day streak'))),
+      h('div', { style: 'display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px' }, h('span', { class: 'big' }, fmt(mins)), h('span', { class: 'muted mono small' }, 'of ' + fmt(goal) + ' goal')),
+      h('div', { class: 'bar' + (pct >= 100 ? ' ok' : ''), role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': String(pct) }, h('i', { style: 'width:' + pct + '%' })),
+      Object.keys(bySubj).length ? h('div', { class: 'chips', style: 'margin-top:12px' }, Object.keys(bySubj).map(function (k) { var s = subj(k); return h('span', { class: 'tag' }, s.name + ' ' + fmt(bySubj[k])); })) : h('p', { class: 'empty', style: 'margin-top:8px' }, 'No sessions yet today. Start the timer to log your first one.'),
+      h('label', { class: 'field', style: 'margin-top:14px;max-width:180px' }, h('span', null, 'Daily goal (min)'),
+        h('input', { type: 'number', id: 'set-goal', min: 15, max: 720, step: 15, value: goal, onchange: function (e) { S.settings.goal = Math.max(15, Math.min(720, parseInt(e.target.value, 10) || 240)); commit(); } })));
+
+    /* tasks */
+    var tasks = S.tasks.slice().sort(function (a, b) { return (a.done ? 1 : 0) - (b.done ? 1 : 0); });
+    var ul = h('ul', { class: 'list' }, tasks.map(function (k) {
+      var s = k.subj ? subj(k.subj) : null;
+      return h('li', { class: k.done ? 'done' : '' },
+        h('input', { type: 'checkbox', 'aria-label': 'Done: ' + k.text, checked: k.done, onchange: function (e) { k.done = e.target.checked; commit(); } }),
+        h('span', { class: 'grow' }, k.text),
+        k.ex ? h('span', { class: 'ex' }, 'example') : null,
+        s ? h('span', { class: 'tag' }, s.name) : null,
+        confirmBtn('×', 'Delete?', 'Delete task', function () { S.tasks = S.tasks.filter(function (x) { return x.id !== k.id; }); commit(); }));
+    }));
+    var open = S.tasks.filter(function (k) { return !k.done; }).length;
+    var taskCard = h('section', { class: 'card', 'aria-label': 'Tasks' },
+      h('div', { class: 'label' }, h('span', null, 'To do'), h('span', null, open + ' open')),
+      S.tasks.length ? ul : h('p', { class: 'empty' }, 'Nothing planned. Add the next thing you need to study.'),
+      h('form', { class: 'inline', style: 'margin-top:12px', onsubmit: function (e) {
+        e.preventDefault();
+        var tx = $('#task-in').value.trim(); if (!tx) return;
+        S.tasks.push({ id: uid(), text: tx.slice(0, 200), subj: $('#task-subj').value || '', done: false });
+        refocus = 'task-in'; commit();
+      } }, h('input', { type: 'text', id: 'task-in', placeholder: 'Add a task', 'aria-label': 'New task', maxlength: 200 }), subjSelect('task-subj', '', 'Any subject'), h('button', { class: 'btn', type: 'submit' }, 'Add')));
+
+    /* exam */
+    var ex = S.settings.exam, left = ex.date ? dayDiff(t, ex.date) : null;
+    var examCard = h('section', { class: 'card', 'aria-label': 'Next exam' },
+      h('div', { class: 'label' }, h('span', null, 'Next exam'), left != null && left >= 0 ? h('span', null, left === 0 ? 'today' : left + (left === 1 ? ' day left' : ' days left')) : null),
+      h('div', { class: 'fields' },
+        h('label', { class: 'field' }, h('span', null, 'Name'), h('input', { type: 'text', id: 'ex-name', maxlength: 60, placeholder: 'e.g. Half-yearly', value: ex.name, onchange: function (e) { S.settings.exam.name = e.target.value.trim(); commit(); } })),
+        h('label', { class: 'field' }, h('span', null, 'Date'), h('input', { type: 'date', id: 'ex-date', value: ex.date, onchange: function (e) { S.settings.exam.date = e.target.value; commit(); } }))));
+
+    var due = dueCards().length;
+    var dueCard = due ? h('section', { class: 'card', style: 'display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap' },
+      h('div', null, h('div', { class: 'label', style: 'margin-bottom:2px' }, 'Flashcards'), h('p', null, due + (due === 1 ? ' card is' : ' cards are') + ' due for review.')),
+      h('button', { type: 'button', class: 'btn', onclick: function () { tab = 'cards'; render(); } }, 'Review now')) : null;
+
+    var wrap = h('div', { class: 'two' }, h('div', { class: 'stack' }, timer, dueCard), h('div', { class: 'stack' }, goalCard, taskCard, examCard));
+    setTimeout(paintTimer, 0);
+    return wrap;
+  }
+
+  function inExam(c) {
+    var f = UI.exam;
+    if (!f || f === 4) return true;
+    return !!c.x && c.x <= f;
+  }
+  function viewChapters() {
+    var cards = S.subjects.map(function (sb) {
+      var chs = S.chapters.filter(function (c) { return c.subj === sb.id && inExam(c); });
+      if (UI.exam && !chs.length) return null;
+      var revised = chs.filter(function (c) { return c.st === 2; }).length;
+      var pct = chs.length ? Math.round(revised / chs.length * 100) : 0;
+      var inId = 'ch-in-' + sb.id;
+      var papers = []; chs.forEach(function (c) { var p = c.p || 0; if (papers.indexOf(p) < 0) papers.push(p); });
+      papers.sort(function (a, b) { return (a || 9) - (b || 9); });
+      return h('section', { class: 'card', 'aria-label': sb.name },
+        h('div', { class: 'subj-head' }, dotFor(sb), h('h2', null, sb.name), h('span', { class: 'mono small muted' }, revised + '/' + chs.length + ' revised'),
+          confirmBtn('Remove', 'Remove subject and its cards?', 'Remove ' + sb.name, function () {
+            S.subjects = S.subjects.filter(function (x) { return x.id !== sb.id; });
+            S.chapters = S.chapters.filter(function (x) { return x.subj !== sb.id; });
+            S.cards = S.cards.filter(function (x) { return x.subj !== sb.id; });
+            S.tasks.forEach(function (x) { if (x.subj === sb.id) x.subj = ''; });
+            commit();
+          })),
+        h('div', { class: 'bar ok', style: 'margin-bottom:8px' }, h('i', { style: 'width:' + pct + '%' })),
+        chs.length ? papers.map(function (p) {
+          var rows = chs.filter(function (c) { return (c.p || 0) === p; });
+          var pr = rows.filter(function (c) { return c.st === 2; }).length;
+          return h('div', null,
+            (papers.length > 1 || p > 0) ? h('div', { class: 'paper-head' }, h('span', null, paperLabel(sb.id, p)), h('span', null, pr + '/' + rows.length)) : null,
+            h('ul', { class: 'list' }, rows.map(function (c) {
+              return h('li', null,
+                h('span', { class: 'grow' }, c.name, c.d ? h('span', { class: 'dtl' }, c.d) : null),
+                c.x ? h('span', { class: 'tag' }, EXAM_NAMES[c.x]) : null,
+                h('button', { type: 'button', class: 'st', 'data-s': String(c.st), 'aria-label': c.name + ': ' + ST_NAMES[c.st] + '. Click to change.', onclick: function () { c.st = (c.st + 1) % 3; commit(); } }, ST_NAMES[c.st]),
+                confirmBtn('×', 'Delete?', 'Delete chapter', function () { S.chapters = S.chapters.filter(function (x) { return x.id !== c.id; }); commit(); }));
+            })));
+        }) : h('p', { class: 'empty' }, 'No chapters yet. Add the first one below.'),
+        h('form', { class: 'inline', style: 'margin-top:10px', onsubmit: function (e) {
+          e.preventDefault();
+          var v = $('#' + inId).value.trim(); if (!v) return;
+          S.chapters.push({ id: uid(), subj: sb.id, name: v.slice(0, 120), st: 0, p: parseInt($('#ch-p-' + sb.id).value, 10) || 0 }); refocus = inId; commit();
+        } }, h('input', { type: 'text', id: inId, placeholder: 'Add a chapter', 'aria-label': 'New chapter for ' + sb.name, maxlength: 120 }),
+          h('select', { id: 'ch-p-' + sb.id, 'aria-label': 'Paper' }, h('option', { value: '0' }, 'No paper'), h('option', { value: '1' }, '1st paper'), h('option', { value: '2' }, '2nd paper')),
+          h('button', { class: 'btn', type: 'submit' }, 'Add')));
+    });
+    var intro = h('div', { style: 'display:flex;gap:12px 20px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px' },
+      h('p', { class: 'muted small', style: 'flex:1 1 360px;max-width:640px' }, 'Chapter lists follow the current class 11–12 textbooks (checked 25 Oct 2026); Bangla follows the HSC 2026 syllabus. No official HSC 2028 syllabus has been announced yet, so check NCTB notices for changes. Click a status to move a chapter from not started to studying to revised.'),
+      h('div', null,
+        h('button', { type: 'button', class: 'btn', onclick: function () { var n = mergeSyllabus(S) + applyExams(S); UI.sylMsg = n ? 'Added ' + n + (n === 1 ? ' chapter.' : ' chapters.') : 'Nothing missing.'; commit(); } }, 'Restore standard chapters'),
+        UI.sylMsg ? h('p', { class: 'mono small muted', style: 'margin-top:6px' }, UI.sylMsg) : null));
+    var chips = h('div', { class: 'chips', role: 'group', 'aria-label': 'Filter by exam', style: 'margin-bottom:14px' },
+      [0, 1, 2, 3, 4].map(function (n) {
+        var cnt = S.chapters.filter(function (c) { var o = UI.exam; UI.exam = n; var r = inExam(c); UI.exam = o; return r; }).length;
+        return h('button', { type: 'button', class: 'chip', 'aria-pressed': String(UI.exam === n), onclick: function () { UI.exam = n; render(); } }, (n ? EXAM_NAMES[n] : 'All') + ' (' + cnt + ')');
+      }));
+    var examNote = UI.exam ? h('p', { class: 'muted small', style: 'margin:-6px 0 14px;max-width:640px' }, UI.exam === 4 ? 'The test covers the full board syllabus.' : 'Shows chapters new in this exam plus earlier ones. Tags come from your school’s exam syllabus pages; chapters without a tag only show under All and Test.') : null;
+    var addSubj = h('section', { class: 'card', style: 'margin-top:16px' },
+      h('div', { class: 'label' }, 'Add a subject'),
+      h('form', { class: 'inline', onsubmit: function (e) {
+        e.preventDefault();
+        var v = $('#subj-in').value.trim(); if (!v) return;
+        S.subjects.push({ id: uid(), name: v.slice(0, 40), c: S.subjects.length % 7 }); refocus = 'subj-in'; commit();
+      } }, h('input', { type: 'text', id: 'subj-in', placeholder: 'e.g. Physics 2nd Paper', 'aria-label': 'Subject name', maxlength: 40 }), h('button', { class: 'btn', type: 'submit' }, 'Add subject')));
+    return h('div', null, intro, chips, examNote, h('div', { class: 'grid2' }, cards), addSubj);
+  }
+
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function answer(got) {
+    var id = R.q[R.i], c = S.cards.find(function (x) { return x.id === id; });
+    if (c) {
+      if (got) {
+        if (R.missed[id]) { c.box = 1; c.due = addDays(today(), 1); }
+        else { c.box = Math.min(5, c.box + 1); c.due = addDays(today(), INTERVAL[c.box]); }
+        R.got++;
+      } else { c.box = 1; c.due = today(); R.missed[id] = true; R.q.push(id); R.again++; }
+    }
+    R.i++; R.shown = false;
+    if (R.i >= R.q.length) R.done = true;
+    commit();
+  }
+  function viewReview() {
+    if (R.done) {
+      return h('div', { class: 'review' }, h('section', { class: 'card flash' },
+        h('h2', null, 'Review finished'),
+        h('p', { class: 'mono' }, R.got + ' remembered · ' + R.again + ' to see again'),
+        h('p', { class: 'muted small' }, 'Cards you knew come back in 1 to 16 days. Missed ones return tomorrow.'),
+        h('button', { type: 'button', class: 'btn primary', onclick: function () { R = null; render(); } }, 'Back to cards')));
+    }
+    var id = R.q[R.i], c = S.cards.find(function (x) { return x.id === id; });
+    if (!c) { R.i++; if (R.i >= R.q.length) R.done = true; return viewReview(); }
+    var s = subj(c.subj);
+    return h('div', { class: 'review' },
+      h('div', { class: 'label', style: 'margin:0' }, h('span', null, 'Card ' + (R.i + 1) + ' of ' + R.q.length), h('button', { type: 'button', class: 'btn ghost sm', onclick: function () { R = null; render(); } }, 'Stop')),
+      h('div', { class: 'bar' }, h('i', { style: 'width:' + Math.round(R.i / R.q.length * 100) + '%' })),
+      h('section', { class: 'card flash' },
+        h('span', { class: 'tag' }, s.name),
+        h('div', null, c.q),
+        R.shown ? h('div', { class: 'ans' }, c.a) : null),
+      R.shown
+        ? h('div', { class: 'btnrow', style: 'justify-content:center' },
+            h('button', { type: 'button', class: 'btn', onclick: function () { answer(false); } }, 'Again (1)'),
+            h('button', { type: 'button', class: 'btn primary', onclick: function () { answer(true); } }, 'Got it (2)'))
+        : h('div', { class: 'btnrow', style: 'justify-content:center' }, h('button', { type: 'button', class: 'btn primary', onclick: function () { R.shown = true; render(); } }, 'Show answer')),
+      h('p', { class: 'keyhint', style: 'text-align:center' }, 'Space shows the answer. Then 1 for again, 2 for got it.'));
+  }
+  function viewCards() {
+    if (R) return viewReview();
+    if (!UI.cardSubj || !S.subjects.some(function (s) { return s.id === UI.cardSubj; })) UI.cardSubj = S.subjects[0] ? S.subjects[0].id : '';
+    var due = dueCards();
+    var head = h('section', { class: 'card', style: 'display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap' },
+      h('div', null, h('div', { class: 'label', style: 'margin-bottom:2px' }, 'Spaced review'),
+        h('p', null, due.length ? due.length + (due.length === 1 ? ' card is due today.' : ' cards are due today.') : (S.cards.length ? 'You are all caught up. Nothing is due today.' : 'Add your first card below.'))),
+      h('button', { type: 'button', class: 'btn primary', disabled: !due.length, onclick: function () { R = { q: shuffle(due.map(function (c) { return c.id; })), i: 0, shown: false, got: 0, again: 0, missed: {}, done: false }; render(); } }, 'Start review'));
+
+    var form = h('section', { class: 'card' },
+      h('div', { class: 'label' }, 'New card'),
+      h('form', { onsubmit: function (e) {
+        e.preventDefault();
+        var q = $('#card-q').value.trim(), a = $('#card-a').value.trim(); if (!q || !a) return;
+        UI.cardSubj = $('#card-subj').value;
+        S.cards.push({ id: uid(), subj: UI.cardSubj, q: q.slice(0, 400), a: a.slice(0, 600), box: 1, due: today() });
+        refocus = 'card-q'; commit();
+      } },
+        h('div', { style: 'display:grid;gap:10px' },
+          h('label', { class: 'field', style: 'max-width:240px' }, h('span', null, 'Subject'), subjSelect('card-subj', UI.cardSubj)),
+          h('label', { class: 'field' }, h('span', null, 'Front (question)'), h('textarea', { id: 'card-q', maxlength: 400, required: true })),
+          h('label', { class: 'field' }, h('span', null, 'Back (answer)'), h('textarea', { id: 'card-a', maxlength: 600, required: true })),
+          h('div', null, h('button', { class: 'btn', type: 'submit' }, 'Add card')))));
+
+    var f = UI.cardFilter;
+    var filt = h('div', { class: 'chips', role: 'group', 'aria-label': 'Filter by subject' },
+      h('button', { type: 'button', class: 'chip', 'aria-pressed': String(f === 'all'), onclick: function () { UI.cardFilter = 'all'; render(); } }, 'All (' + S.cards.length + ')'),
+      S.subjects.map(function (s) {
+        var n = S.cards.filter(function (c) { return c.subj === s.id; }).length;
+        return n ? h('button', { type: 'button', class: 'chip', 'aria-pressed': String(f === s.id), onclick: function () { UI.cardFilter = s.id; render(); } }, dotFor(s), s.name + ' (' + n + ')') : null;
+      }));
+    var shown = S.cards.filter(function (c) { return f === 'all' || c.subj === f; });
+    var t = today();
+    var list = shown.length ? h('ul', { class: 'list' }, shown.map(function (c) {
+      var s = subj(c.subj), isDue = c.due <= t;
+      var meter = h('span', { class: 'meter', role: 'img', 'aria-label': 'Box ' + c.box + ' of 5' }, [1, 2, 3, 4, 5].map(function (n) { return h('i', { class: n <= c.box ? 'on' : '' }); }));
+      return h('li', null,
+        dotFor(s),
+        h('div', { class: 'grow' }, h('div', { style: 'font-weight:600' }, c.q), h('div', { class: 'muted small' }, c.a)),
+        c.ex ? h('span', { class: 'ex' }, 'example') : null,
+        h('span', { class: 'tag' }, isDue ? 'due' : 'in ' + dayDiff(t, c.due) + 'd'), meter,
+        confirmBtn('×', 'Delete?', 'Delete card', function () { S.cards = S.cards.filter(function (x) { return x.id !== c.id; }); commit(); }));
+    })) : h('p', { class: 'empty' }, 'No cards here yet.');
+    var all = h('section', { class: 'card' }, h('div', { class: 'label' }, 'All cards'), filt, h('div', { style: 'margin-top:10px' }, list));
+    return h('div', { class: 'stack' }, head, form, all);
+  }
+
+  function viewProgress() {
+    var t = today();
+    var days = []; for (var i = 6; i >= 0; i--) days.push(addDays(t, -i));
+    var order = S.subjects.map(function (s) { return s.id; });
+    var hasOther = S.sessions.some(function (s) { return order.indexOf(s.subj) < 0; });
+    if (hasOther) order.push('other');
+    var perDay = days.map(function (d) {
+      var by = {}; S.sessions.forEach(function (s) { if (s.d === d) { var k = order.indexOf(s.subj) < 0 ? 'other' : s.subj; by[k] = (by[k] || 0) + s.min; } });
+      return { d: d, by: by, total: sum(Object.keys(by), function (k) { return by[k]; }) };
+    });
+    var weekTotal = sum(perDay, function (x) { return x.total; });
+    var allTotal = sum(S.sessions, function (s) { return s.min; });
+    var revised = S.chapters.filter(function (c) { return c.st === 2; }).length;
+
+    var stats = h('div', { class: 'stats' },
+      h('div', null, h('div', { class: 'label' }, 'Streak'), h('div', { class: 'big' }, streak()), h('div', { class: 'muted small' }, streak() === 1 ? 'day' : 'days')),
+      h('div', null, h('div', { class: 'label' }, 'Last 7 days'), h('div', { class: 'big' }, fmt(weekTotal)), h('div', { class: 'muted small' }, 'avg ' + fmt(weekTotal / 7) + ' a day')),
+      h('div', null, h('div', { class: 'label' }, 'All time'), h('div', { class: 'big' }, fmt(allTotal)), h('div', { class: 'muted small' }, S.sessions.length + ' sessions')),
+      h('div', null, h('div', { class: 'label' }, 'Chapters revised'), h('div', { class: 'big' }, revised + '/' + S.chapters.length), h('div', { class: 'muted small' }, S.chapters.length ? Math.round(revised / S.chapters.length * 100) + '% done' : 'none added')));
+
+    /* chart */
+    var goal = S.settings.goal || 240;
+    var maxV = Math.max(goal, Math.max.apply(null, perDay.map(function (x) { return x.total; })));
+    var steps = [30, 60, 120, 240, 480, 720], step = 30;
+    for (var k = 0; k < steps.length; k++) { step = steps[k]; if (maxV / step <= 5) break; }
+    var yMax = Math.ceil(maxV * 1.05 / step) * step;
+    var W = 640, H = 270, L = 44, Rr = 12, Tp = 18, B = 38, pw = W - L - Rr, ph = H - Tp - B;
+    function Y(v) { return Tp + ph * (1 - v / yMax); }
+    var svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'Minutes studied per day over the last 7 days, by subject' });
+    for (var v = 0; v <= yMax; v += step) {
+      svg.append(sv('line', { x1: L, x2: W - Rr, y1: Y(v), y2: Y(v), stroke: 'var(--line)', 'stroke-width': 1 }));
+      svg.append(sv('text', { x: L - 8, y: Y(v) + 4, 'text-anchor': 'end' }, fmtTick(v)));
+    }
+    var slot = pw / 7, bw = Math.min(54, slot * 0.62);
+    perDay.forEach(function (x, idx) {
+      var cx = L + slot * idx + slot / 2, acc = 0, isToday = x.d === t;
+      order.forEach(function (sid) {
+        var m = x.by[sid]; if (!m) return;
+        var s = sid === 'other' ? { id: 'other', name: 'Other', c: 6 } : subj(sid);
+        var y1 = Y(acc + m), y0 = Y(acc);
+        var r = sv('rect', { x: cx - bw / 2, y: y1, width: bw, height: Math.max(1, y0 - y1 - 1), style: 'fill:' + col(s) }, sv('title', null, s.name + ': ' + fmt(m)));
+        svg.append(r); acc += m;
+      });
+      if (x.total) svg.append(sv('text', { x: cx, y: Y(x.total) - 6, 'text-anchor': 'middle', class: 'strong' }, fmt(x.total)));
+      var d = parse(x.d);
+      svg.append(sv('text', { x: cx, y: H - 18, 'text-anchor': 'middle', class: isToday ? 'strong' : '' }, d.toLocaleDateString('en-GB', { weekday: 'short' })));
+      svg.append(sv('text', { x: cx, y: H - 5, 'text-anchor': 'middle', class: isToday ? 'strong' : '' }, String(d.getDate())));
+    });
+    svg.append(sv('line', { x1: L, x2: W - Rr, y1: Y(goal), y2: Y(goal), stroke: 'var(--ink)', 'stroke-width': 1.2, 'stroke-dasharray': '5 4' }));
+    svg.append(sv('text', { x: W - Rr - 2, y: Y(goal) - 5, 'text-anchor': 'end', class: 'strong' }, 'goal ' + fmt(goal)));
+    if (!weekTotal) svg.append(sv('text', { x: L + pw / 2, y: Tp + ph / 2, 'text-anchor': 'middle', class: 'strong' }, 'Finish a focus session and it appears here.'));
+
+    var legendItems = order.map(function (sid) {
+      var s = sid === 'other' ? { id: 'other', name: 'Other', c: 6 } : subj(sid);
+      var m = sum(perDay, function (x) { return x.by[sid] || 0; });
+      return m ? h('span', null, dotFor(s), s.name + ' ', h('b', { class: 'mono' }, fmt(m))) : null;
+    });
+    var chart = h('section', { class: 'card' }, h('div', { class: 'label' }, h('span', null, 'Minutes per day'), h('span', null, 'last 7 days')), h('div', { class: 'chartbox' }, svg), h('div', { class: 'legend' }, legendItems));
+
+    /* manual log */
+    if (!UI.logSubj || !S.subjects.some(function (s) { return s.id === UI.logSubj; })) UI.logSubj = S.subjects[0] ? S.subjects[0].id : '';
+    var logForm = h('section', { class: 'card' },
+      h('div', { class: 'label' }, 'Log study time by hand'),
+      h('form', { class: 'fields', onsubmit: function (e) {
+        e.preventDefault();
+        var m = parseInt($('#log-min').value, 10), d = $('#log-date').value || t;
+        if (!m || m < 1) return;
+        if (d > t) d = t;
+        UI.logSubj = $('#log-subj').value;
+        logSession(UI.logSubj, Math.min(m, 720), d); commit();
+      } },
+        h('label', { class: 'field' }, h('span', null, 'Subject'), subjSelect('log-subj', UI.logSubj)),
+        h('label', { class: 'field' }, h('span', null, 'Minutes'), h('input', { type: 'number', id: 'log-min', min: 1, max: 720, value: 30, required: true })),
+        h('label', { class: 'field' }, h('span', null, 'Date'), h('input', { type: 'date', id: 'log-date', value: t, max: t })),
+        h('div', null, h('button', { class: 'btn', type: 'submit' }, 'Add to log'))));
+
+    var recent = S.sessions.slice().sort(function (a, b) { return a.d < b.d ? 1 : a.d > b.d ? -1 : 0; }).slice(0, 8);
+    var recentCard = h('section', { class: 'card' },
+      h('div', { class: 'label' }, 'Recent sessions'),
+      recent.length ? h('ul', { class: 'list' }, recent.map(function (s) {
+        var sb = S.subjects.some(function (x) { return x.id === s.subj; }) ? subj(s.subj) : { id: 'other', name: 'Other', c: 6 };
+        var dd = parse(s.d).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+        return h('li', null, dotFor(sb), h('span', { class: 'grow' }, sb.name), h('span', { class: 'mono small muted' }, dd), h('span', { class: 'mono' }, fmt(s.min)),
+          confirmBtn('×', 'Delete?', 'Delete session', function () { S.sessions = S.sessions.filter(function (x) { return x.id !== s.id; }); commit(); }));
+      })) : h('p', { class: 'empty' }, 'Sessions you finish with the timer or log by hand are listed here.'));
+
+    return h('div', { class: 'stack' }, stats, chart, h('div', { class: 'two' }, logForm, recentCard));
+  }
+
+  /* Unofficial summaries, checked 25 Oct 2026. No HSC 2028 pattern has been announced. */
+  var PATTERN = [
+    ['Physics', '1st and 2nd', 100, ['Creative 50', 'MCQ 25', 'Practical 25'], '3 h: MCQ 25 min, then creative 2 h 35 min'],
+    ['Chemistry', '1st and 2nd', 100, ['Creative 50', 'MCQ 25', 'Practical 25'], '3 h: MCQ 25 min, then creative 2 h 35 min'],
+    ['Higher Math', '1st and 2nd', 100, ['Creative 50', 'MCQ 25', 'Practical 25'], '3 h: MCQ 25 min, then creative 2 h 35 min'],
+    ['Biology', '1st and 2nd', 100, ['Creative 50', 'MCQ 25', 'Practical 25'], '3 h: MCQ 25 min, then creative 2 h 35 min'],
+    ['ICT', 'One paper', 100, ['Written 75', 'Practical 25'], 'Creative and MCQ split not confirmed'],
+    ['Bangla', '1st and 2nd', 100, ['Creative 70', 'MCQ 30'], '3 h: MCQ 30 min, then creative 2 h 30 min'],
+    ['English', '1st paper', 100, ['Reading 60', 'Writing 40'], '3 h'],
+    ['English', '2nd paper', 100, ['Grammar and vocabulary 60', 'Composition and writing 40'], '3 h']
+  ];
+  var ENG1 = [
+    ['Reading', null, null, null],
+    ['1A', 'MCQ: guess meaning from context', 5, 'Textbook'], ['1B', 'Comprehension questions', 10, 'Textbook'], ['2', 'Information transfer or flow chart', 10, 'Textbook'],
+    ['3', 'Summarising', 10, 'Textbook'], ['4', 'Cloze test with clues', 5, 'Unseen'], ['5', 'Cloze test without clues', 10, 'Unseen'], ['6', 'Rearranging', 10, 'Unseen'],
+    ['Writing', null, null, null],
+    ['7', 'Paragraph answering questions', 10, ''], ['8', 'Completing a story', 7, ''], ['9', 'Informal letter or e-mail', 5, ''],
+    ['10', 'Analysing maps, graphs and charts', 10, ''], ['11', 'Appreciating short stories and poems', 8, '']
+  ];
+  var ENG2 = [
+    ['Grammar', null, null, null],
+    ['1', 'Gap filling with articles', 5, ''], ['2', 'Gap filling with prepositions', 5, ''], ['3', 'Gap filling with clues', 5, ''], ['4', 'Completing sentences', 5, ''],
+    ['5', 'Use of verbs', 5, ''], ['6', 'Changing sentences', 5, ''], ['7', 'Narrative style', 5, ''], ['8', 'Pronoun reference', 5, ''],
+    ['9', 'Use of modifiers', 5, ''], ['10', 'Sentence connectors', 5, ''], ['11', 'Synonym and antonym', 5, ''], ['12', 'Punctuation', 5, ''],
+    ['Composition', null, null, null],
+    ['13', 'Formal letter or e-mail', 8, ''], ['14', 'Report writing', 8, ''], ['15', 'Paragraphs', 10, ''], ['16', 'Free writing (200–250 words)', 14, '']
+  ];
+  function engTable(title, rows) {
+    var sec = 0, out = [], total = 0;
+    rows.forEach(function (r) { if (r[1] !== null) total += r[2]; });
+    rows.forEach(function (r) {
+      if (r[1] === null) { out.push(h('tr', null, h('td', { colspan: 4, style: 'background:var(--surface2);font:500 11px var(--f-mono);text-transform:uppercase;letter-spacing:0;color:var(--ink2)' }, r[0]))); return; }
+      out.push(h('tr', null, h('td', { class: 'mono' }, r[0]), h('td', null, r[1]), h('td', { class: 'mono' }, r[2]), h('td', { class: 'small muted' }, r[3])));
+    });
+    return h('div', null, h('h2', { style: 'margin:0 0 8px' }, title + ' · ' + total + ' marks'),
+      h('div', { class: 'chartbox' }, h('table', { class: 'tbl', style: 'min-width:480px' },
+        h('thead', null, h('tr', null, ['Q', 'Item', 'Marks', 'Source'].map(function (x) { return h('th', null, x); }))), h('tbody', null, out))));
+  }
+  function viewPattern() {
+    var rows = PATTERN.map(function (r) {
+      return h('tr', null, h('td', { style: 'font-weight:600' }, r[0]), h('td', null, r[1]), h('td', { class: 'mono' }, r[2]),
+        h('td', null, r[3].map(function (x) { return h('span', { class: 'tag', style: 'margin:0 4px 4px 0;display:inline-block' }, x); })), h('td', { class: 'small muted' }, r[4]));
+    });
+    var table = h('div', { class: 'chartbox' }, h('table', { class: 'tbl' },
+      h('thead', null, h('tr', null, ['Subject', 'Paper', 'Marks per paper', 'Breakdown', 'Time'].map(function (x) { return h('th', null, x); }))), h('tbody', null, rows)));
+    function plan(label, mins, marks, qs) {
+      return h('li', null, h('span', { class: 'grow' }, label), h('span', { class: 'mono' }, qs), h('span', { class: 'mono muted' }, (mins / marks).toFixed(1) + ' min per mark'));
+    }
+    return h('div', { class: 'stack' },
+      h('section', { class: 'card' },
+        h('div', { class: 'label' }, 'Read this first'),
+        h('p', { class: 'small' }, 'These numbers come from unofficial summaries. NCTB and the boards have not announced a question pattern for the HSC 2028 batch, and one source says the pattern may change under the new curriculum. Treat this as a guide and check the specimen paper from your board.'),
+        h('p', { class: 'small muted', style: 'margin-top:8px' }, 'Sources: ',
+          h('a', { href: 'https://www.teachers.gov.bd/blog/details/849611', target: '_blank', rel: 'noopener' }, 'Teachers Portal post'), ' and ',
+          h('a', { href: 'https://hscroutine2026.online/hsc-marks-distribution/', target: '_blank', rel: 'noopener' }, 'HSC Routine 2026'), '. The two disagree on some details, so only the points they agree on are shown.')),
+      h('section', { class: 'card' }, h('div', { class: 'label' }, 'Marks and time by subject'), table),
+      h('section', { class: 'card' },
+        h('div', { class: 'label' }, 'English, item by item'),
+        h('p', { class: 'small muted', style: 'margin-bottom:14px' }, 'Marks per item come from one private tutoring site. An older syllabus lists different 2nd paper writing items (a 10-mark letter and two 15-mark paragraphs), so confirm the current items with your board.'),
+        h('div', { class: 'grid2' }, engTable('English 1st paper', ENG1), engTable('English 2nd paper', ENG2))),
+      h('section', { class: 'card' },
+        h('div', { class: 'label' }, 'Time you can spend per mark'),
+        h('ul', { class: 'list' },
+          plan('MCQ, practical subjects', 25, 25, '25 marks · 25 min'),
+          plan('Creative, practical subjects', 155, 50, '50 marks · 2 h 35 min'),
+          plan('MCQ, Bangla', 30, 30, '30 marks · 30 min'),
+          plan('Creative, Bangla', 150, 70, '70 marks · 2 h 30 min')),
+        h('p', { class: 'small muted', style: 'margin-top:10px' }, 'Use these as pacing targets in timed practice: for example, a 10-mark creative question in a science paper gets about 31 minutes.')));
+  }
+
+  /* ---------- settings and app update ---------- */
+  var APP_VERSION = '1.7';
+  var ART = null, UPD = { text: '', info: null, msg: '', busy: false };
+  function loadArt() {
+    try {
+      if (window.claude && window.claude.use) window.claude.use('artifact').then(function (a) { ART = a; if (tab === 'settings') render(); }, function () {});
+    } catch (e) {}
+  }
+  function readUpdate(file) {
+    UPD.msg = ''; UPD.info = null; UPD.text = '';
+    if (!file) { render(); return; }
+    if (!/\.html?$/i.test(file.name)) { UPD.msg = 'Choose an .html file.'; render(); return; }
+    if (file.size > 15 * 1024 * 1024) { UPD.msg = 'That file is too large.'; render(); return; }
+    var r = new FileReader();
+    r.onload = function () {
+      var s = String(r.result || '');
+      var okDoc = /^\s*<!doctype html/i.test(s);
+      var okApp = /<meta[^>]+name=["']app["'][^>]+content=["']studydesk["']/i.test(s);
+      var m = s.match(/<meta[^>]+name=["']app-version["'][^>]+content=["']([^"']+)["']/i);
+      if (!okDoc || !okApp) UPD.msg = 'This isn’t a Study Desk app file, so I didn’t use it.';
+      else UPD.info = { name: file.name, kb: Math.round(file.size / 1024), v: m ? m[1] : 'unknown' }, UPD.text = s;
+      render();
+    };
+    r.onerror = function () { UPD.msg = 'I couldn’t read that file.'; render(); };
+    r.readAsText(file);
+  }
+  function installUpdate() {
+    if (!ART || !UPD.text || UPD.busy) return;
+    UPD.busy = true; UPD.msg = 'Installing the update…'; render();
+    ART.publish(UPD.text).then(function () {}, function (e) {
+      var c = e && e.code;
+      UPD.busy = false;
+      UPD.msg = (c === 'not_writer' || c === 'not_granted') ? 'Only the owner of this page can install updates.'
+        : c === 'conflict' ? 'A newer version was just published. The page will reload.'
+        : c === 'too_large' ? 'The file is too large.'
+        : c === 'invalid_content' ? 'The file isn’t a valid page.'
+        : c === 'rate_limited' ? 'Too many updates. Wait a minute and try again.'
+        : 'The update failed. Please try again.';
+      render();
+    });
+  }
+  function liRow(k, v, mono) { return h('li', null, h('span', { class: 'muted grow' }, k), h('span', mono ? { class: 'mono' } : { style: 'font-weight:600' }, v)); }
+  /* ---------- registration (Android app only, needs registerUrl in config.js) ---------- */
+  var CFG = window.STUDYDESK_CONFIG || {};
+  var PK = 'studydesk.profile.v1', SK = 'studydesk.profile.skip';
+  var CLASSES = ['HSC 1st year (Class 11)', 'HSC 2nd year (Class 12)'];
+  function regOn() { return IS_APP && !!CFG.registerUrl; }
+  function getProfile() { try { return JSON.parse(localStorage.getItem(PK)) || null; } catch (e) { return null; } }
+  function setProfile(p) { try { localStorage.setItem(PK, JSON.stringify(p)); } catch (e) {} }
+  function sendProfile(p) {
+    return fetch(CFG.registerUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ app: 'studydesk', name: p.name, cls: p.cls, roll: p.roll, v: APP_VERSION }) })
+      .then(function () { p.sent = true; }, function () { p.sent = false; })
+      .then(function () { setProfile(p); if (tab === 'settings') render(); });
+  }
+  function openReg() {
+    if (document.getElementById('reg-gate')) return;
+    var p = getProfile() || {};
+    var msg = h('p', { role: 'alert', class: 'small', style: 'color:var(--bad);min-height:1.3em;margin:0' });
+    function close() { var g = document.getElementById('reg-gate'); if (g) g.remove(); render(); }
+    var form = h('form', { style: 'display:grid;gap:12px', onsubmit: function (e) {
+      e.preventDefault();
+      var nm = $('#reg-n').value.trim(), cl = $('#reg-c').value, rl = $('#reg-r').value.trim();
+      if (!nm || !rl) { msg.textContent = 'Please enter your name and roll.'; return; }
+      if (!$('#reg-ok').checked) { msg.textContent = 'Please tick the box to agree, or choose Skip for now.'; return; }
+      var np = { name: nm.slice(0, 60), cls: cl, roll: rl.slice(0, 12), sent: false };
+      setProfile(np); sendProfile(np); close();
+    } },
+      h('label', { class: 'field' }, h('span', null, 'Full name'), h('input', { type: 'text', id: 'reg-n', maxlength: 60, autocomplete: 'name', value: p.name || '' })),
+      h('label', { class: 'field' }, h('span', null, 'Class'), h('select', { id: 'reg-c' }, CLASSES.map(function (c) { return h('option', { value: c, selected: c === p.cls ? true : null }, c); }))),
+      h('label', { class: 'field' }, h('span', null, 'Roll'), h('input', { type: 'text', id: 'reg-r', maxlength: 12, inputmode: 'numeric', value: p.roll || '' })),
+      h('label', { style: 'display:flex;gap:10px;align-items:flex-start' }, h('input', { type: 'checkbox', id: 'reg-ok', style: 'margin-top:4px' }),
+        h('span', { class: 'small' }, 'I agree to share my name, class and roll with the app creator, Soyeib Ahmed, so he knows who uses Study Desk.')),
+      msg,
+      h('div', { class: 'btnrow' }, h('button', { class: 'btn primary', type: 'submit' }, 'Save and continue'),
+        h('button', { type: 'button', class: 'btn ghost', onclick: function () { if (!p.name) { try { localStorage.setItem(SK, '1'); } catch (e) {} } close(); } }, p.name ? 'Cancel' : 'Skip for now')));
+    var gate = h('div', { id: 'reg-gate', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Your details',
+      style: 'position:fixed;inset:0;z-index:50;overflow:auto;background:var(--bg);padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))' },
+      h('section', { class: 'card', style: 'max-width:520px;margin:0 auto;display:grid;gap:12px' },
+        h('div', { class: 'label' }, 'Welcome'), h('h2', null, 'Who is using Study Desk?'),
+        h('p', { class: 'small muted' }, 'This app is for Narsingdi Govt. College, Science, HSC 2028. Only the three fields below are sent, with the app version. No contacts, location or device ID. To change or remove your details, email soyeib.ahmed.7@gmail.com.'),
+        form));
+    document.body.appendChild(gate);
+    var f = document.getElementById('reg-n'); if (f) f.focus();
+  }
+  function regCard() {
+    var p = getProfile();
+    return h('section', { class: 'card' }, h('div', { class: 'label' }, 'Your details'),
+      p ? h('ul', { class: 'list' }, liRow('Name', p.name), liRow('Class', p.cls), liRow('Roll', p.roll))
+        : h('p', { class: 'small muted' }, 'Not shared yet. Add your name, class and roll so the app creator knows who uses Study Desk.'),
+      p && !p.sent ? h('p', { class: 'small muted' }, 'Saved on this phone. It will be sent when you are online.') : null,
+      h('div', { class: 'btnrow', style: 'margin-top:10px' }, h('button', { type: 'button', class: 'btn sm', onclick: openReg }, p ? 'Edit details' : 'Add my details')));
+  }
+  function aboutCard() {
+    return h('section', { class: 'card', 'aria-label': 'About' },
+      h('div', { class: 'label' }, 'About'),
+      h('h2', { style: 'margin-bottom:6px' }, 'Study Desk'),
+      h('p', { style: 'margin-bottom:10px' }, 'This app is for Narsingdi Govt. College, Science, HSC 2028.'),
+      h('ul', { class: 'list' },
+        liRow('Created by', 'Soyeib Ahmed'), liRow('College', 'Narsingdi Government College'), liRow('Version', APP_VERSION, true),
+        h('li', null, h('span', { class: 'muted grow' }, 'Contact'), h('a', { href: 'mailto:soyeib.ahmed.7@gmail.com' }, 'soyeib.ahmed.7@gmail.com'))),
+      IS_APP ? h('p', { class: 'small muted', style: 'margin-top:10px' }, 'Your notes, chapters and cards are saved on this phone only. Updates arrive as a new version of the app.') : null);
+  }
+  function viewSettings() { return h('div', { class: 'stack' }, IS_APP ? null : viewUpdate(), regOn() ? regCard() : null, aboutCard()); }
+  function viewUpdate() {
+    var info = UPD.info;
+    return h('div', { class: 'stack' }, h('section', { class: 'card' },
+      h('div', { class: 'label' }, 'App update'),
+      h('p', null, 'Installed version: ' + APP_VERSION),
+      h('p', { class: 'small muted' }, 'When Claude gives you a new Study Desk file, choose it here to update the app. Your notes, chapters, cards and sessions stay as they are.'),
+      ART ? h('input', { type: 'file', accept: '.html,text/html', 'aria-label': 'Choose update file', onchange: function (e) { readUpdate(e.target.files[0]); } })
+        : h('p', { class: 'empty' }, 'Updating isn’t available in this copy of the page. Open the published version to update.'),
+      UPD.msg ? h('p', { role: 'status', style: 'margin-top:10px' }, UPD.msg) : null,
+      info ? h('div', { style: 'margin-top:12px;display:grid;gap:8px' },
+        h('p', null, 'Ready: ' + info.name + ' · ' + info.kb + ' KB · version ' + info.v + ' (you have ' + APP_VERSION + ')'),
+        h('p', { class: 'small muted' }, 'An update file replaces the whole app and runs with access to your data. Only install files Claude gave you.'),
+        h('div', { class: 'btnrow' }, confirmBtn('Install update', 'Replace the app?', 'Install update', installUpdate))) : null));
+  }
+
+  /* ---------- notes ---------- */
+  function viewNotes() {
+    var ed = UI.noteEdit ? S.notes.find(function (n) { return n.id === UI.noteEdit; }) : null;
+    if (UI.noteEdit && !ed) UI.noteEdit = null;
+    var form = h('section', { class: 'card' }, h('div', { class: 'label' }, ed ? 'Edit note' : 'New note'),
+      h('form', { onsubmit: function (e) {
+        e.preventDefault();
+        var ti = $('#note-t').value.trim(), tx = $('#note-x').value.trim(), sj = $('#note-s').value;
+        if (!ti && !tx) return;
+        if (ed) { ed.title = ti.slice(0, 120); ed.text = tx.slice(0, 5000); ed.subj = sj; UI.noteEdit = null; }
+        else S.notes.push({ id: uid(), subj: sj, title: ti.slice(0, 120), text: tx.slice(0, 5000), t: Date.now() });
+        refocus = 'note-t'; commit();
+      } },
+        h('div', { style: 'display:grid;gap:10px' },
+          h('label', { class: 'field', style: 'max-width:240px' }, h('span', null, 'Subject'), subjSelect('note-s', ed ? ed.subj : '', 'No subject')),
+          h('label', { class: 'field' }, h('span', null, 'Title'), h('input', { type: 'text', id: 'note-t', maxlength: 120, value: ed ? ed.title : '' })),
+          h('label', { class: 'field' }, h('span', null, 'Note'), h('textarea', { id: 'note-x', maxlength: 5000, rows: 6 }, ed ? ed.text : '')),
+          h('div', { class: 'btnrow' }, h('button', { class: 'btn primary', type: 'submit' }, ed ? 'Save note' : 'Add note'),
+            ed ? h('button', { type: 'button', class: 'btn ghost', onclick: function () { UI.noteEdit = null; render(); } }, 'Cancel') : null))));
+    var items = S.notes.slice().sort(function (a, b) { return b.t - a.t; });
+    var list = items.length ? h('div', { class: 'stack' }, items.map(function (n) {
+      var s = n.subj ? subj(n.subj) : null;
+      return h('section', { class: 'card' },
+        h('div', { class: 'label' }, h('span', null, new Date(n.t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })), s ? h('span', { class: 'tag' }, s.name) : null),
+        n.title ? h('h2', { style: 'margin-bottom:6px' }, n.title) : null,
+        h('p', { style: 'white-space:pre-wrap;overflow-wrap:anywhere' }, n.text),
+        h('div', { class: 'btnrow', style: 'margin-top:10px' },
+          h('button', { type: 'button', class: 'btn sm', onclick: function () { UI.noteEdit = n.id; render(); window.scrollTo(0, 0); } }, 'Edit'),
+          AI.sample ? h('button', { type: 'button', class: 'btn sm', onclick: function () { tab = 'assistant'; render(); askAI('Summarize this note and quiz me on it with 3 short questions: ' + (n.title ? n.title + '. ' : '') + n.text); } }, 'Ask assistant') : null,
+          confirmBtn('Delete', 'Delete note?', 'Delete note', function () { S.notes = S.notes.filter(function (x) { return x.id !== n.id; }); commit(); })));
+    })) : h('p', { class: 'empty' }, 'No notes yet. Write your first one above.');
+    return h('div', { class: 'stack' }, form, list);
+  }
+
+  /* ---------- assistant ---------- */
+  var AI = { sample: null, tried: false, busy: false, msgs: [], ctl: null, canImg: false, pics: [], draft: '' };
+  function loadAI() {
+    try {
+      if (!window.claude || !window.claude.use) { AI.tried = true; return; }
+      window.claude.use('sample').then(function (s) {
+        AI.sample = s; AI.tried = true;
+        Promise.resolve(s && s.limits ? s.limits() : null).then(function (l) { AI.canImg = !!(l && l.images); }, function () {}).then(function () { if (tab === 'assistant') render(); });
+      }, function () { AI.tried = true; });
+    } catch (e) { AI.tried = true; }
+  }
+  function studyContext() {
+    var t = today(), ex = S.settings.exam, left = ex.date ? dayDiff(t, ex.date) : null;
+    var lines = ['Today: ' + t + (left != null && left >= 0 ? '. ' + (ex.name || 'Exam') + ' in ' + left + ' days.' : ''),
+      'Studied today: ' + minutesOn(t) + ' min of a ' + (S.settings.goal || 240) + ' min goal. Streak: ' + streak() + ' days. Flashcards due: ' + dueCards().length + '.'];
+    S.subjects.forEach(function (s) {
+      var c = S.chapters.filter(function (x) { return x.subj === s.id; }), by = [0, 0, 0];
+      c.forEach(function (x) { by[x.st]++; });
+      var open = c.filter(function (x) { return x.st < 2; }).slice(0, 12).map(function (x) { return x.name + (x.st === 1 ? ' (studying)' : ''); });
+      lines.push(s.name + ': ' + by[2] + ' revised, ' + by[1] + ' studying, ' + by[0] + ' not started. Open chapters: ' + (open.join('; ') || 'none'));
+    });
+    lines.push('Notes saved: ' + S.notes.length + (S.notes.length ? '. Latest titles: ' + S.notes.slice(-5).map(function (n) { return n.title || '(untitled)'; }).join('; ') : ''));
+    return lines.join('\n');
+  }
+  var INSTR = 'You are the study assistant inside a student’s Study Desk app (HSC, Bangladesh). Reply in the language the student writes in (Bangla or English). Be brief and practical. Use the student data below when planning or recommending, and never invent data. Give a short quiz or explanation when asked. If a photo is attached, read it (a textbook page, handwritten notes or a question) and help with what it shows.\n\nSTUDENT DATA\n';
+  function paintAI() {
+    var e = document.getElementById('as-last'), m = AI.msgs[AI.msgs.length - 1];
+    if (e && m) e.textContent = m.content || (AI.busy ? 'Thinking…' : '');
+    var b = document.getElementById('as-send'); if (b) b.disabled = AI.busy;
+    var l = document.getElementById('as-log'); if (l) l.scrollTop = l.scrollHeight;
+  }
+  function askAI(text) {
+    text = String(text || '').trim();
+    if (AI.busy || !AI.sample || (!text && !AI.pics.length)) return;
+    var imgs = AI.pics.splice(0);
+    if (!text) text = 'Look at the attached photo and help me study from it.';
+    AI.msgs.push({ role: 'user', content: text, pics: imgs.length });
+    var reply = { role: 'assistant', content: '' }; AI.msgs.push(reply);
+    AI.busy = true; AI.ctl = new AbortController(); refocus = 'as-in'; render();
+    var hist = AI.msgs.slice(0, -1).slice(-10).map(function (m) { return { role: m.role, content: m.content }; });
+    while (hist.length && hist[0].role !== 'user') hist.shift();
+    hist[0] = { role: 'user', content: INSTR + studyContext() + '\n\nSTUDENT MESSAGE\n' + hist[0].content };
+    AI.sample(hist, Object.assign({ cache: false, signal: AI.ctl.signal, onText: function (o) { reply.content = o.text; paintAI(); } }, imgs.length ? { images: imgs } : {}))
+      .then(function (r) { if (r && r.text) reply.content = r.text; },
+        function (e) { if (!reply.content) reply.content = e && e.code === 'rate_limited' ? 'Too many requests. Wait a moment and try again.' : (e && e.code === 'not_granted' ? 'Permission was declined, so I can’t answer.' : 'Something went wrong. Please try again.'); })
+      .then(function () { AI.busy = false; AI.ctl = null; paintAI(); });
+  }
+  function shrink(file) {
+    return new Promise(function (res, rej) {
+      var img = new Image(), u = URL.createObjectURL(file);
+      img.onload = function () {
+        var k = Math.min(1, 1600 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+        c.toBlob(function (b) { if (b) res(b); else rej(); }, 'image/jpeg', 0.85);
+      };
+      img.onerror = function () { URL.revokeObjectURL(u); rej(); };
+      img.src = u;
+    });
+  }
+  function keepDraft() { var d = $('#as-in'); AI.draft = d ? d.value : ''; }
+  function aiPhotoRow() {
+    if (!AI.canImg) return null;
+    var inp = h('input', { type: 'file', accept: 'image/*', multiple: true, hidden: true, onchange: function (e) {
+      var fs = Array.prototype.slice.call(e.target.files).slice(0, 3 - AI.pics.length);
+      Promise.all(fs.map(function (f) { return shrink(f).catch(function () { return null; }); })).then(function (bs) {
+        bs.forEach(function (b) { if (b && AI.pics.length < 3) AI.pics.push(b); });
+        keepDraft(); render();
+      });
+    } });
+    return h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px' },
+      h('button', { type: 'button', class: 'btn sm', disabled: AI.pics.length >= 3 || AI.busy, onclick: function () { inp.click(); } }, '📷 Add photo'), inp,
+      AI.pics.map(function (b, i) {
+        return h('span', { class: 'tag', style: 'display:inline-flex;align-items:center;gap:6px' },
+          h('img', { src: URL.createObjectURL(b), alt: 'Attached photo ' + (i + 1), style: 'width:36px;height:36px;object-fit:cover;border-radius:4px' }),
+          h('button', { type: 'button', class: 'btn ghost sm', 'aria-label': 'Remove photo', onclick: function () { AI.pics.splice(i, 1); keepDraft(); render(); } }, '×'));
+      }));
+  }
+  function viewAssistant() {
+    if (!AI.sample) return h('section', { class: 'card' }, h('div', { class: 'label' }, 'Study assistant'),
+      h('p', { class: 'empty' }, AI.tried ? 'The assistant isn’t available in this copy of the page. Open the published version to use it.' : 'Loading the assistant…'));
+    var prompts = ['Plan my study session for today', 'What should I revise next?', 'Quiz me on my open chapters', 'Explain a topic I’m stuck on'];
+    var last = AI.msgs.length - 1;
+    var log = h('div', { class: 'chatlog', id: 'as-log', 'aria-live': 'polite' }, AI.msgs.length
+      ? AI.msgs.map(function (m, i) { return h('div', { class: 'msg ' + m.role, id: i === last ? 'as-last' : null }, (m.pics ? '📷 ' + m.pics + (m.pics === 1 ? ' photo · ' : ' photos · ') : '') + (m.content || (AI.busy ? 'Thinking…' : ''))); })
+      : h('p', { class: 'empty' }, 'Ask for a study plan, a quiz or an explanation. I can see your chapters, flashcards and exam date.'));
+    var form = h('form', { class: 'inline', onsubmit: function (e) { e.preventDefault(); var i = $('#as-in'), v = i.value; i.value = ''; AI.draft = ''; askAI(v); } },
+      h('input', { type: 'text', id: 'as-in', value: AI.draft || '', placeholder: 'Ask anything about your studies', 'aria-label': 'Message', maxlength: 600 }),
+      h('button', { class: 'btn primary', type: 'submit', id: 'as-send', disabled: AI.busy }, 'Send'));
+    return h('div', { class: 'stack' },
+      h('section', { class: 'card' },
+        h('div', { class: 'label' }, h('span', null, 'Study assistant'), AI.msgs.length ? h('button', { type: 'button', class: 'btn ghost sm', onclick: function () { if (AI.ctl) AI.ctl.abort(); AI.msgs = []; AI.busy = false; render(); } }, 'Clear') : null),
+        log,
+        h('div', { class: 'chips', style: 'margin:10px 0' }, prompts.map(function (q) { return h('button', { type: 'button', class: 'chip', onclick: function () { askAI(q); } }, q); })),
+        aiPhotoRow(), form),
+      h('p', { class: 'small muted' }, 'Answers can be wrong. Check facts against your textbook.'));
+  }
+
+  /* ---------- shell ---------- */
+  var VIEWS = { today: viewToday, chapters: viewChapters, cards: viewCards, notes: viewNotes, progress: viewProgress, pattern: viewPattern, assistant: viewAssistant, settings: viewSettings };
+  var TABS = [['today', 'Today'], ['chapters', 'Chapters'], ['cards', 'Flashcards'], ['notes', 'Notes'], ['progress', 'Progress'], ['pattern', 'Exam pattern'], ['assistant', 'Assistant'], ['settings', 'Settings']];
+  if (IS_APP) TABS = TABS.filter(function (x) { return x[0] !== 'assistant'; });
+  function renderTabs() {
+    var nav = $('#tabs'), due = dueCards().length;
+    nav.replaceChildren.apply(nav, TABS.map(function (p) {
+      return h('button', { type: 'button', class: 'tab', 'aria-selected': String(tab === p[0]), onclick: function () { if (tab !== p[0]) { tab = p[0]; render(); window.scrollTo(0, 0); } } },
+        p[1], p[0] === 'cards' && due ? h('span', { class: 'count', 'aria-label': due + ' due' }, due) : null);
+    }));
+  }
+  function renderMeta() {
+    var t = today(), d = new Date();
+    var m = $('#meta'), ex = S.settings.exam, left = ex.date ? dayDiff(t, ex.date) : null;
+    m.replaceChildren(h('div', null, d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })),
+      left != null && left >= 0 ? h('div', null, h('b', null, ex.name || 'Exam'), left === 0 ? ' is today' : ' in ' + left + (left === 1 ? ' day' : ' days')) : null);
+  }
+  function render() {
+    renderTabs(); renderMeta();
+    $('#main').replaceChildren(VIEWS[tab]());
+    if (refocus) { var e = document.getElementById(refocus); if (e) e.focus(); refocus = null; }
+    paintTimer();
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (tab !== 'cards' || !R || R.done) return;
+    var tg = e.target; if (tg && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(tg.tagName)) return;
+    if (e.code === 'Space' || e.key === 'Enter') { e.preventDefault(); if (!R.shown) { R.shown = true; render(); } }
+    else if (R.shown && e.key === '1') answer(false);
+    else if (R.shown && e.key === '2') answer(true);
+  });
+
+  setMode('focus');
+  render();
+  initStore();
+  loadAI();
+  loadArt();
+  if (IS_APP && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+    window.Capacitor.Plugins.App.addListener('backButton', function () {
+      if (tab !== 'today') { tab = 'today'; render(); } else window.Capacitor.Plugins.App.exitApp();
+    });
+  }
+  if (regOn()) { try { var pr0 = getProfile(); if (!pr0 && !localStorage.getItem(SK)) openReg(); else if (pr0 && !pr0.sent) sendProfile(pr0); } catch (e) {} }
+})();
+</script>
+
+</body></html>
